@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+    
+    <entry>
+      <title><![CDATA[Hello World]]></title>
+      <url>/blog/2018/02/05/hello-world/</url>
+      <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+]]></content>
+      
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[三种工厂模式]]></title>
+      <url>/blog/2017/03/05/factory-pattern-summary/</url>
+      <content type="html"><![CDATA[<h2 id="关于工厂模式的总结"><a href="#关于工厂模式的总结" class="headerlink" title="关于工厂模式的总结"></a>关于工厂模式的总结</h2><h3 id="1-简单工厂"><a href="#1-简单工厂" class="headerlink" title="1.简单工厂"></a>1.简单工厂</h3><ol>
+<li><p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fo5dyyqc67j30n60crwih.jpg" alt=""></p>
+</li>
+<li><p>角色：</p>
+<ul>
+<li>一个抽象产品类/接口</li>
+<li>多个抽象产品类的实现类</li>
+<li>一个工厂</li>
+<li>客户端只请求工厂，工厂根据请求（switch）创建不同产品</li>
+<li>改进，可以用xml</li>
+</ul>
+</li>
+<li><p>主要优点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(1) 工厂类包含必要的判断逻辑，可以决定在什么时候创建哪一个产品类的实例，客户端可以免除直接创建产品对象的职责，而仅仅“消费”产品，简单工厂模式实现了对象创建和使用的分离。</span><br><span class="line"></span><br><span class="line">(2) 客户端无须知道所创建的具体产品类的类名，只需要知道具体产品类所对应的参数即可，对于一些复杂的类名，通过简单工厂模式可以在一定程度减少使用者的记忆量。</span><br><span class="line"></span><br><span class="line">(3) 通过引入配置文件，可以在不修改任何客户端代码的情况下更换和增加新的具体产品类，在一定程度上提高了系统的灵活性。</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p>主要缺点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(1) 由于工厂类集中了所有产品的创建逻辑，职责过重，一旦不能正常工作，整个系统都要受到影响。</span><br><span class="line"></span><br><span class="line">(2) 使用简单工厂模式势必会增加系统中类的个数（引入了新的工厂类），增加了系统的复杂度和理解难度。</span><br><span class="line"></span><br><span class="line">(3) 系统扩展困难，一旦添加新产品就不得不修改工厂逻辑，在产品类型较多时，有可能造成工厂逻辑过于复杂，不利于系统的扩展和维护。</span><br><span class="line"></span><br><span class="line">(4) 简单工厂模式由于使用了静态工厂方法，造成 工厂角色 无法形成基于继承的等级结构。</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="2-工厂方法"><a href="#2-工厂方法" class="headerlink" title="2.工厂方法"></a>2.工厂方法</h3><p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fo5dyywf6uj30os0a976y.jpg" alt=""></p>
+<ol>
+<li>与简单工厂的差别：工厂方法模式最重要的区别是引入了抽象工厂角色，抽象工厂可以是接口，也可以是抽象类或者具体类</li>
+<li>客户端先实例化具体工厂，由具体工厂再实例化具体产品。</li>
+<li>扩展：在客户端代码中将不再使用 new 关键字来创建工厂对象，而是将具体工厂类的类名存储在配置文件（如 XML 文件）中，通过读取配置文件获取类名字符串，再使用Java的反射机制，根据类名字符串生成对象。在整个实现过程中需要用到两个技术：Java 反射机制与配置文件读取。</li>
+<li><p>主要优点：</p>
+<ol>
+<li>在工厂方法模式中，工厂方法用来创建客户所需要的产品，同时还向客户隐藏了哪种具体产品类将被实例化这一细节，<strong>用户只需要关心所需产品对应的工厂</strong>，无须关心创建细节，甚至无须知道具体产品类的类名。</li>
+<li>基于工厂角色和产品角色的多态性设计是工厂方法模式的关键。它能够让工厂可以自主确定创建何种产品对象，而如何创建这个对象的细节则完全封装在具体工厂内部。工厂方法模式之所以又被称为<strong>多态工厂模式</strong>，就正是因为所有的具体工厂类都具有同一抽象父类。</li>
+<li>使用工厂方法模式的另一个优点是在系统中加入新产品时，无须修改抽象工厂和抽象产品提供的接口，无须修改客户端，也无须修改其他的具体工厂和具体产品，<strong>而只要添加一个具体工厂和具体产品就可以了</strong>，这样，系统的可扩展性也就变得非常好，完全符合“开闭原则”。</li>
+</ol>
+</li>
+<li><p>缺点：</p>
+<ol>
+<li>在添加新产品时，<strong>需要编写新的具体产品类，而且还要提供与之对应的具体工厂类，系统中类的个数将成对增加，</strong>在一定程度上增加了系统的复杂度，有更多的类需要编译和运行，会给系统带来一些额外的开销。</li>
+<li>由于考虑到系统的可扩展性，需要引入抽象层，在客户端代码中均使用抽象层进行定义，增加了系统的抽象性和理解难度，且在实现时可能需要用到 DOM、反射等技术，增加了系统的实现难度。</li>
+</ol>
+</li>
+<li>适用场景<ol>
+<li>客户端不知道它所需要的对象的类。在工厂方法模式中，客户端不需要知道具体产品类的类名，只需要知道所对应的工厂即可，具体的产品对象由具体工厂类创建，可将具体工厂类的类名存储在配置文件或数据库中。</li>
+<li>抽象工厂类通过其子类来指定创建哪个对象。在工厂方法模式中，对于抽象工厂类只需要提供一个创建产品的接口，而由其子类来确定具体要创建的对象，利用面向对象的多态性和里氏代换原则，在程序运行时，子类对象将覆盖父类对象，从而使得系统更容易扩展。</li>
+</ol>
+</li>
+</ol>
+<h3 id="3-抽象工厂"><a href="#3-抽象工厂" class="headerlink" title="3.抽象工厂"></a>3.抽象工厂</h3><p>抽象工厂模式是所有形式的工厂模式中最为抽象和最具一般性的一种形式<strong>。抽象工厂模式与工厂方法模式最大的区别在于，工厂方法模式针对的是一个产品等级结构，而抽象工厂模式需要面对多个产品等级结构，一个工厂等级结构可以负责多个不同产品等级结构中的产品对象的创建。</strong>当一个工厂等级结构可以创建出分属于不同产品等级结构的一个产品族中的所有对象时，抽象工厂模式比工厂方法模式更为简单、更有效率。</p>
+<p>抽象工厂模式为创建一组对象提供了一种解决方案。与工厂方法模式相比，抽象工厂模式中的具体工厂不只是创建一种产品，它负责创建一族产品。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1fo5dyz9r1wj30dm06sjru.jpg" alt="cxgc1"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fo5dyz2spbj30qc0g8dl6.jpg" alt=""></p>
+<ol>
+<li><p>开闭原则的倾斜性：开闭原则的倾斜性：</p>
+<p>(1) 增加产品族：对于增加新的产品族，抽象工厂模式很好地支持了“开闭原则”，只需要增加具体产品并对应增加一个新的具体工厂，对已有代码无须做任何修改。</p>
+<p>(2) 增加新的产品等级结构：对于增加新的产品等级结构，需要修改所有的工厂角色，包括抽象工厂类，在所有的工厂类中都需要增加生产新产品的方法，违背了“开闭原则”。</p>
+</li>
+<li><p>抽象工厂把产品族的产品放在同一个工厂里生产，不同产品族用不同的工厂，新飞冰箱洗衣机空调，海尔冰箱洗衣机空调。</p>
+</li>
+<li><p>试用场景：</p>
+<p>在以下情况下可以考虑使用抽象工厂模式：</p>
+<ul>
+<li>一个系统不应当依赖于产品类实例如何被创建、组合和表达的细节，这对于所有类型的工厂模式都是很重要的，用户无须关心对象的创建过程，将对象的创建和使用解耦。</li>
+<li>系统中有多于一个的产品族，而每次只使用其中某一产品族。可以通过配置文件等方式来使得用户可以动态改变产品族，也可以很方便地增加新的产品族。</li>
+<li>属于同一个产品族的产品将在一起使用，这一约束必须在系统的设计中体现出来。同一个产品族中的产品可以是没有任何关系的对象，但是它们都具有一些共同的约束，如同一操作系统下的按钮和文本框，按钮与文本框之间没有直接关系，但它们都是属于某一操作系统的，此时具有一个共同的约束条件：操作系统的类型。</li>
+<li>产品等级结构稳定，设计完成之后，不会向系统中增加新的产品等级结构或者删除已有的产品等级结构。</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> Design Patterns </tag>
+            
+            <tag> 工厂模式 </tag>
+            
+            <tag> 设计模式 </tag>
+            
+            <tag> java </tag>
+            
+        </tags>
+        
+    </entry>
+    
+  
+  
+    
+    <entry>
+      <title><![CDATA[about]]></title>
+      <url>/blog/about/index.html</url>
+      <content type="html"><![CDATA[<h3 id="Who-am-I"><a href="#Who-am-I" class="headerlink" title="Who am I?"></a>Who am I?</h3><ul>
+<li><p>I am Larry, but most of my friends call me, Nightsnack. </p>
+<blockquote>
+<p>大家都叫我夜宵，全名是吃夜宵</p>
+</blockquote>
+</li>
+<li><p>Graduate from NUPT &amp; UNSW Australia.  </p>
+<blockquote>
+<p>南京邮电大学/澳大利亚新南威尔士大学校友</p>
+</blockquote>
+</li>
+<li><p>Getty Images (CN) Contract Photographer &amp; Programmer</p>
+<blockquote>
+<p>业余摄影师</p>
+</blockquote>
+</li>
+<li><p>Rooftopper</p>
+<blockquote>
+<p>U don’t need to know that.</p>
+</blockquote>
+<p>​</p>
+</li>
+</ul>
+<h3 id="Wanna-Find-Me"><a href="#Wanna-Find-Me" class="headerlink" title="Wanna Find Me ?"></a>Wanna Find Me ?</h3><ul>
+<li><p>qq/wechat: MWU4OGU0MDM4NTMyNzgxYmNjYmM0NTBlOWMzZmFkYmU=</p>
+<p>本人拒不提供各种类型的陪聊服务，已嫁，勿撩</p>
+</li>
+<li><p>weibo: @吃夜宵</p>
+</li>
+<li><p>Instagram：nightsnackc_</p>
+</li>
+<li><p>email: chiyexiao@icloud.com </p>
+<p>9:30 everyday</p>
+</li>
+<li><p>Wechat Offical Account Platform: 吃夜宵</p>
+<p>​</p>
+</li>
+</ul>
+<h3 id="Story-情怀"><a href="#Story-情怀" class="headerlink" title="Story 情怀"></a>Story 情怀</h3><ul>
+<li>网易云音乐深度使用患者。</li>
+<li>我很穷，请不要在我面前提摄影器材，如有兴趣轻关注下方支付宝二维码。</li>
+<li>爬楼党</li>
+</ul>
+<h3 id="下面这些摘自我的2017年度总结"><a href="#下面这些摘自我的2017年度总结" class="headerlink" title="下面这些摘自我的2017年度总结"></a>下面这些摘自我的2017年度总结</h3><blockquote>
+<p>斜阳草树，寻常巷陌，人道寄奴曾住</p>
+<p>想当年，金戈铁马</p>
+<p>气吞万里如虎</p>
+<p>再见2017</p>
+<p>再见那些翘首期盼的日子</p>
+<p>再见那些迷惘着的日子</p>
+<p>生活就是那么真实，少部分的戏剧化并不能掩盖大部分时候的它其实是平凡的。</p>
+<p>承认生活的平凡，挖掘它的闪光点，带着自己的执念去观察感知。</p>
+<p>放下拿着相机时怀揣着的幻觉般的英雄主义，拿起相机时又心平气和地把它当做一个老伙伴。</p>
+<p>在镜头前出现的戏剧，或者日常琐碎，按下快门的一瞬间，它们都成了你生活的一个片段，你对生活这首长诗的吟诵。 </p>
+<p>所以我一直觉得我还不懂摄影，还不懂怎么活好自己，还不了解生活，也不知道未来会在哪里。</p>
+<p>依旧看不懂什么是好，但我知道什么是不好。</p>
+</blockquote>
+<h3 id="Donate"><a href="#Donate" class="headerlink" title="Donate"></a>Donate</h3><p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fo5ldzlm3kj30go0p040o.jpg" alt=""></p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[tags]]></title>
+      <url>/blog/tags/index.html</url>
+      <content type="html"></content>
+    </entry>
+    
+  
+</search>
