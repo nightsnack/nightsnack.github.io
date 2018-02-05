@@ -77,7 +77,10 @@ theme: material
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type:
+  type: git
+  repository: git@github.com:nightsnack/nightsnack.github.io.git
+  branch: gh-pages
+  
   
 search:
     path: search.xml
