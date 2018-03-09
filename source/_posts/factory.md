@@ -2,8 +2,6 @@
 title: 三种工厂模式
 date: 2017-03-05 10:28:14
 tags: 
-    - Design Patterns
-    - 工厂模式
     - 设计模式
     - java
 ---
