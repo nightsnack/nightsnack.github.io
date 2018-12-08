@@ -10,7 +10,7 @@ tags:
 
 ### 第二章java内存区域与内存溢出异常
 
-1. java虚拟机规范中对于java虚拟机栈规定了两种异常状况，如果线程请求的栈的深度大于虚拟机所允许的深度，将抛出**Stack Overflow**的异常，虚拟机动态扩展时都无法申请到足够的内存时，抛出**OutofMemory**的异常。
+1. java虚拟机规范中对于java虚拟机栈规定了两种异常状况，如果线程请求的栈的深度大于虚拟机所允许的深度，将抛出**Stack Overflow**的异常，虚拟机动态扩展时都无法申请到足够的内存时，或者方法区无法满足内存分配的需求时，抛出**OutofMemory**的异常。常量池是方法区的一部分，当它无法申请到内存的时候，也会抛出**OutofMemory**的异常。
 
 2. java虚拟机的栈内存（Stack）存放的是局部变量表的部分，包括各种基本数据类型（Boolean，byte，cjhar short float long int double），对象引用和returnAddress类型（指向了一条字节码指令的地址）。
 
