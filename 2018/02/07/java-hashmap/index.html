@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="rZ-Jwa76pMlBmWks1FiFsjy0D3kjWUkGGgyDjLsvXMQ">
+  <meta name="baidu-site-verification" content="TjN4MUjtls">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://nightsnack.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: true,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Java HashMap 源码学习笔记">
+<meta name="keywords" content="java,java源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java HashMap 源码学习笔记">
+<meta property="og:url" content="https://nightsnack.github.io/2018/02/07/java-hashmap/index.html">
+<meta property="og:site_name" content="Larry&#39;s Blog">
+<meta property="og:description" content="Java HashMap 源码学习笔记">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-01-05T10:29:02.510Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java HashMap 源码学习笔记">
+<meta name="twitter:description" content="Java HashMap 源码学习笔记">
+
+<link rel="canonical" href="https://nightsnack.github.io/2018/02/07/java-hashmap/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Java HashMap 源码学习笔记 | Larry's Blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113531697-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-113531697-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Larry's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Personal Blog</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-timelines">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Timelines</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/nightsnack_" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2018/02/07/java-hashmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Nightsnack">
+      <meta itemprop="description" content="Code and Photos">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Larry's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java HashMap 源码学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-02-07 16:16:49" itemprop="dateCreated datePublished" datetime="2018-02-07T16:16:49+08:00">2018-02-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-01-05 18:29:02" itemprop="dateModified" datetime="2020-01-05T18:29:02+08:00">2020-01-05</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Java-HashMap-源码学习笔记"><a href="#Java-HashMap-源码学习笔记" class="headerlink" title="Java HashMap 源码学习笔记"></a>Java HashMap 源码学习笔记</h2><a id="more"></a>
+<p>map子类中的hashmap，源码学习记录。部分是翻译还有一些是自己的记录。</p>
+<p>写起来才发现好坑啊，网上很多是1.7的，我看的是1.8的，没想到1.7根1.8差的还挺多的。1.7源码都没看过的我…🙁</p>
+<h3 id="1-常量初始化"><a href="#1-常量初始化" class="headerlink" title="1.常量初始化"></a>1.常量初始化</h3><p>The default initial capacity - MUST be a power of two.\</p>
+<p>最小初始容量，必须是2的指数次幂</p>
+<pre><code class="lang-java">     static final int DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4; // aka 16
+</code></pre>
+<p>The maximum capacity, used if a higher value is implicitly specified by either of the constructors with arguments. MUST be a power of two &lt;= 1&lt;&lt;30.</p>
+<p>最大容量，必须是2的指数次幂，<strong>为什么呢？</strong>见hash函数</p>
+<pre><code class="lang-java">     static final int MAXIMUM_CAPACITY = 1 &lt;&lt; 30;
+</code></pre>
+<p>The load factor used when none specified in constructor.</p>
+<p>负载平衡，是时间复杂度和空间复杂度的平衡，oracle官方给出的是0.75是最佳。过高的因子会降低存储空间但是查找（lookup，包括HashMap中的put与get方法）的时间就会增加</p>
+<pre><code class="lang-java">     static final float DEFAULT_LOAD_FACTOR = 0.75f;
+</code></pre>
+<p>The bin count threshold for using a tree rather than list for a bin. Bins are converted to trees when adding an element to a bin with at least this many nodes. The value must be greater than 2 and should be at least 8 to mesh with assumptions in tree removal about conversion back to plain bins upon shrinkage.</p>
+<p>当节点个数&gt;= TREEIFY_THRESHOLD - 1时，HashMap将采用红黑树存储。为什么这么做呢？当发生Hash冲突时，HashMap首先是采用链表将重复的值串起来，并将最后放入的值置于链首，java8对HashMap进行了优化。当节点个数多了之后使用红黑树存储。这样做的好处是，最坏的情况下即所有的key都Hash冲突，采用链表的话查找时间为O(n),而采用红黑树为O(logn)，这也是Java8中HashMap性能提升的奥秘</p>
+<pre><code class="lang-java">     static final int TREEIFY_THRESHOLD = 8;
+</code></pre>
+<p>The bin count threshold for untreeifying a (split) bin during a resize operation. Should be less than TREEIFY_THRESHOLD, and at most 6 to mesh with shrinkage detection under removal.</p>
+<pre><code class="lang-java">     static final int UNTREEIFY_THRESHOLD = 6;
+</code></pre>
+<p>The smallest table capacity for which bins may be treeified. (Otherwise the table is resized if too many nodes in a bin.) Should be at least 4 * TREEIFY_THRESHOLD to avoid conflicts between resizing and treeification thresholds.</p>
+<p>重新分配大小</p>
+<pre><code class="lang-java">     static final int MIN_TREEIFY_CAPACITY = 64;
+</code></pre>
+<p>HashMap性能的有两个参数：初始容量(initialCapacity) 和加载因子(loadFactor)。容量 是哈希表中桶的数量，初始容量只是哈希表在创建时的容量。加载因子 是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时，则要对该哈希表进行 rehash 操作（即重建内部数据结构），从而哈希表将具有大约两倍的桶数。</p>
+<h3 id="2-Hash函数"><a href="#2-Hash函数" class="headerlink" title="2.Hash函数"></a>2.Hash函数</h3><p>Computes key.hashCode() and spreads (XORs) higher bits of hash to lower. Because the table uses power-of-two masking, sets of hashes that vary only in bits above the current mask will always collide. (Among known examples are sets of Float keys holding consecutive whole numbers in small tables.) So we apply a transform that spreads the impact of higher bits downward. There is a tradeoff between speed, utility, and quality of bit-spreading. Because many common sets of hashes are already reasonably distributed (so don’t benefit from spreading), and because we use trees to handle large sets of collisions in bins, we just XOR some shifted bits in the cheapest possible way to reduce systematic lossage, as well as to incorporate impact of the highest bits that would otherwise never be used in index calculations because of table bounds.</p>
+<pre><code class="lang-java">
+static final int hash(Object key) {   //jdk1.8 &amp; jdk1.7
+     int h;
+     // h = key.hashCode() 为第一步 取hashCode值
+     // h ^ (h &gt;&gt;&gt; 16)  为第二步 高位参与运算
+     return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+
+static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个方法，但是实现原理一样的
+     return h &amp; (length-1);  //第三步 取模运算
+}
+</code></pre>
+<p>在哈希表容量（也就是buckets或slots大小）为length的情况下，为了使每个key都能在冲突最小的情况下映射到<code>[0,length)</code>（注意是左闭右开区间）的索引（index）内，一般有两种做法：</p>
+<ol>
+<li>让length为素数，然后用<code>hashCode(key) mod length</code>的方法得到索引</li>
+<li>让length为2的指数倍，然后用<code>hashCode(key) &amp; (length-1)</code>的方法得到索引</li>
+</ol>
+<p><a href="http://docs.oracle.com/javase/7/docs/api/index.html?java/util/Hashtable.html" target="_blank" rel="noopener">HashTable</a>用的是方法1，<code>HashMap</code>用的是方法2。</p>
+<p>下图，n为哈希列表长度</p>
+<p><img data-src="https://ws2.sinaimg.cn/large/006tKfTcgy1fo6yr3pfc8j30xa0j0q5u.jpg" alt></p>
+<p>也就是高16位与低16位XOR（其实是原值和高16位右移16位后的值XOR）后再和 length-1 &amp;运算，length是2 的指数次幂，最小是16，也就是说length-1的末4为全1，32就是末8位全1，以此类推。</p>
+<p>为什么要这么做呢？</p>
+<blockquote>
+<p>如果<code>hashCode(key)</code>的大于<code>length</code>的值，而且<code>hashCode(key)</code>的二进制位的低位变化不大，那么冲突就会很多，举个例子：</p>
+<p> Java中对象的哈希值都32位整数，而HashMap默认大小为16，那么有两个对象那么的哈希值分别为：<code>0xABAB0000</code>与<code>0xBABA0000</code>，它们的后几位都是一样，那么与16异或后得到结果应该也是一样的，也就是产生了冲突。</p>
+<p>造成冲突的原因关键在于16限制了只能用低位来计算，高位直接舍弃了，所以我们需要额外的哈希函数而不只是简单的对象的<code>hashCode</code>方法了。<br> 具体来说，就是HashMap中<code>hash</code>函数干的事了.</p>
+</blockquote>
+<h3 id="3-List式的bucket-Node"><a href="#3-List式的bucket-Node" class="headerlink" title="3. List式的bucket Node"></a>3. List式的bucket Node</h3><pre><code class="lang-java">/**
+     * Basic hash bin node, used for most entries.  (See below for
+     * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
+     */
+    static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+        final int hash;
+        final K key;
+        V value;
+        Node&lt;K,V&gt; next;
+
+        Node(int hash, K key, V value, Node&lt;K,V&gt; next) {
+            this.hash = hash;
+            this.key = key;
+            this.value = value;
+            this.next = next;
+        }
+
+        public final K getKey()        { return key; }
+        public final V getValue()      { return value; }
+        public final String toString() { return key + &quot;=&quot; + value; }
+
+        public final int hashCode() {
+            return Objects.hashCode(key) ^ Objects.hashCode(value);
+        }
+
+        public final V setValue(V newValue) {
+            V oldValue = value;
+            value = newValue;
+            return oldValue;
+        }
+
+        public final boolean equals(Object o) {
+            if (o == this)
+                return true;
+            if (o instanceof Map.Entry) {
+                Map.Entry&lt;?,?&gt; e = (Map.Entry&lt;?,?&gt;)o;
+                if (Objects.equals(key, e.getKey()) &amp;&amp;
+                    Objects.equals(value, e.getValue()))
+                    return true;
+            }
+            return false;
+        }
+    }
+</code></pre>
+<p>bucket是一个list，每个元素是一个节点，用于开散列法解决冲突（如果冲突就在这个节点后面链式存储）</p>
+<p>所以每个元素有一个next节点，也是一个Node类。</p>
+<h3 id="4-get"><a href="#4-get" class="headerlink" title="4.get"></a>4.get</h3><pre><code class="lang-java">    /**
+     * Returns the value to which the specified key is mapped,
+     * or {@code null} if this map contains no mapping for the key.
+     *
+     * &lt;p&gt;More formally, if this map contains a mapping from a key
+     * k to a value v such that  (key==null ? k==null :
+     * key.equals(k)), then this method returns v; otherwise
+     * it returns null.  (There can be at most one such mapping.)
+     *
+     * &lt;p&gt;A return value of null does not &lt;i&gt;necessarily&lt;/i&gt;
+     * indicate that the map contains no mapping for the key; it&#39;s also
+     * possible that the map explicitly maps the key to null.
+     * The {@link #containsKey containsKey} operation may be used to
+     * distinguish these two cases.
+     * 这段话意思就是说有的key是空的，但是不代表这个map没有建立关联的关系
+
+     * @see #put(Object, Object)
+     */
+    public V get(Object key) {
+        Node&lt;K,V&gt; e;
+        return (e = getNode(hash(key), key)) == null ? null : e.value;
+    }
+
+    /**
+    * The table, initialized on first use, and resized as necessary. When allocated,         length is always a power of two. (We also tolerate length zero in some operations to      allow bootstrapping mechanics that are currently not needed.)
+    */
+    transient Node&lt;K,V&gt;[] table;
+
+
+    /**
+     * Implements Map.get and related methods
+     *
+     * @param hash hash for key 哈希值
+     * @param key the key 原值
+     * @return the node, or null if none
+     */
+    final Node&lt;K,V&gt; getNode(int hash, Object key) {
+        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;
+        if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;
+            (first = tab[(n - 1) &amp; hash]) != null) {    //数组非空，把数组赋给tab，长度大于0，而且头结点(用哈希值和数组长度异或)非空
+            if (first.hash == hash &amp;&amp; // always check first node
+                ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))
+                return first;        //看first的key是否等于传入的key
+            if ((e = first.next) != null) {
+                if (first instanceof TreeNode)        //如果是红黑树方式存储的
+                    return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);    //调用红黑树寻找treenode
+                do {                //链式存储的话链式寻找
+                    if (e.hash == hash &amp;&amp;
+                        ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                        return e;
+                } while ((e = e.next) != null);
+            }
+        }        //找不到或者长度为空什么的返回空
+        return null;
+    }
+</code></pre>
+<h3 id="5-put"><a href="#5-put" class="headerlink" title="5.put"></a>5.put</h3><p><img data-src="https://ws4.sinaimg.cn/large/006tKfTcgy1fo7ooddqq6j31bo11s7cj.jpg" alt="hashMap put方法执行流程图"></p>
+<p>①.判断键值对数组table[i]是否为空或为null，否则执行resize()进行扩容；</p>
+<p>②.根据键值key计算hash值得到插入的数组索引i，如果table[i]==null，直接新建节点添加，转向⑥，如果table[i]不为空，转向③；</p>
+<p>③.判断table[i]的首个元素是否和key一样，如果相同直接覆盖value，否则转向④，这里的相同指的是hashCode以及equals；</p>
+<p>④.判断table[i] 是否为treeNode，即table[i] 是否是红黑树，如果是红黑树，则直接在树中插入键值对，否则转向⑤；</p>
+<p>⑤.遍历table[i]，判断链表长度是否大于8，大于8的话把链表转换为红黑树，在红黑树中执行插入操作，否则进行链表的插入操作；遍历过程中若发现key已经存在直接覆盖value即可；</p>
+<p>⑥.插入成功后，判断实际存在的键值对数量size是否超多了最大容量threshold，如果超过，进行扩容。</p>
+<pre><code class="lang-java">/**
+     * Associates the specified value with the specified key in this map.
+     * If the map previously contained a mapping for the key, the old
+     * value is replaced.
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with &lt;tt&gt;key&lt;/tt&gt;, or
+     *         &lt;tt&gt;null&lt;/tt&gt; if there was no mapping for &lt;tt&gt;key&lt;/tt&gt;.
+     *         (A &lt;tt&gt;null&lt;/tt&gt; return can also indicate that the map
+     *         previously associated &lt;tt&gt;null&lt;/tt&gt; with &lt;tt&gt;key&lt;/tt&gt;.)
+     */
+    public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+    }
+
+    /**
+     * Implements Map.put and related methods
+     *
+     * @param hash hash for key
+     * @param key the key
+     * @param value the value to put
+     * @param onlyIfAbsent if true, don&#39;t change existing value
+     * @param evict if false, the table is in creation mode.
+     * @return previous value, or null if none
+     */
+    final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;    //如果tab为空，先创建tab
+        if ((p = tab[i = (n - 1) &amp; hash]) == null)        //如果tab中当前hash值不存在先创建该节点
+            tab[i] = newNode(hash, key, value, null);
+        else {
+            Node&lt;K,V&gt; e; K k;
+            if (p.hash == hash &amp;&amp;
+                ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))        //对于链表的头节点或者树根，如果该key存在，直接覆盖value
+                e = p;
+            else if (p instanceof TreeNode)        //如果p是红黑树节点，用红黑树的添加方式添加
+                e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);
+            else {        //链表，顺序添加
+                for (int binCount = 0; ; ++binCount) {
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        if (binCount &gt;= TREEIFY_THRESHOLD - 1) // -1 for 1st //链表长度大于8转换为红黑树进行处理
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    if (e.hash == hash &amp;&amp;
+                        ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))        //链表中存在该key
+                        break;
+                    p = e;
+                }
+            }
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size &gt; threshold)        //超过最大容量，扩容
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }
+</code></pre>
+<h3 id="5-resize-扩容"><a href="#5-resize-扩容" class="headerlink" title="5.resize 扩容"></a>5.resize 扩容</h3><p>使用的是2次幂的扩展(指长度扩为原来2倍)，所以，元素的位置要么是在原位置，要么是在原位置再移动2次幂的位置。看下图可以明白这句话的意思，n为table的长度，图（a）表示扩容前的key1和key2两种key确定索引位置的示例，图（b）表示扩容后key1和key2两种key确定索引位置的示例，其中<strong>hash1是key1对应的哈希与高位运算结果</strong>。</p>
+<p><img data-src="https://ws3.sinaimg.cn/large/006tKfTcgy1fo7q9z8yzsj319c0ce761.jpg" alt></p>
+<p>元素在重新计算hash之后，因为n变为2倍，那么n-1的mask范围在高位多1bit(红色)，因此新的index就会发生这样的变化：</p>
+<p><img data-src="https://ws3.sinaimg.cn/large/006tKfTcly1g0l59m14g8j30k003taao.jpg" alt="b2cb057773e3d67976c535d6ef547d51_hd"></p>
+<p>因此，我们在扩充HashMap的时候，不需要像JDK1.7的实现那样重新计算hash，只需要看看原来的hash值新增的那个bit是1还是0就好了，是0的话索引没变，是1的话索引变成“原索引+oldCap”，可以看看下图为16扩充为32的resize示意图：</p>
+<p><img data-src="https://ws4.sinaimg.cn/large/006tKfTcly1g0l58u0adjj30k00bjjtk.jpg" alt="544caeb82a329fa49cc99842818ed1ba_hd">&lt;/u&gt;</p>
+<pre><code class="lang-java">    /**
+     * Initializes or doubles table size.  If null, allocates in
+     * accord with initial capacity target held in field threshold.
+     * Otherwise, because we are using power-of-two expansion, the
+     * elements from each bin must either stay at same index, or move
+     * with a power of two offset in the new table.
+     *
+     * @return the table
+     */
+    final Node&lt;K,V&gt;[] resize() {
+        Node&lt;K,V&gt;[] oldTab = table;
+        int oldCap = (oldTab == null) ? 0 : oldTab.length; //旧容量，旧Thr(Resize上限)，超过这个threshold就要开始扩容了
+        int oldThr = threshold;
+        int newCap, newThr = 0;
+        if (oldCap &gt; 0) {    //超过最大值直接把threshold置为integer最大值，不再扩容了
+            if (oldCap &gt;= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }        //向左移一位，扩成原来的2倍
+            else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;
+                     oldCap &gt;= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr &lt;&lt; 1; // double threshold
+        }
+        else if (oldThr &gt; 0) // initial capacity was placed in threshold
+                                  //如果oldThreshold初始化了，那新的容量初始化为threshold
+            newCap = oldThr;
+        else {               // zero initial threshold signifies using defaults否则用默认值初始化
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+      // 计算新的resize上限newThr
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?
+                      (int)ft : Integer.MAX_VALUE);
+        }
+        threshold = newThr;
+        @SuppressWarnings({&quot;rawtypes&quot;,&quot;unchecked&quot;})
+            Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];
+        table = newTab;    //初始化新的table
+        if (oldTab != null) {
+            for (int j = 0; j &lt; oldCap; ++j) {
+                Node&lt;K,V&gt; e;
+                if ((e = oldTab[j]) != null) {
+                    oldTab[j] = null;
+                    if (e.next == null)
+                        newTab[e.hash &amp; (newCap - 1)] = e;
+                    else if (e instanceof TreeNode)
+                        ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);
+                    else { // preserve order
+                        Node&lt;K,V&gt; loHead = null, loTail = null;
+                        Node&lt;K,V&gt; hiHead = null, hiTail = null;
+                        Node&lt;K,V&gt; next;
+                        do {
+                            next = e.next;
+                            if ((e.hash &amp; oldCap) == 0) { 
+                              //这里为什么是 &amp; oldCap，图上画的是表长-1，表长16的时候扩容32应该和31 &amp;，是因为要判断是否为0，比如说5和21，&amp;31的时候是 一个是5，一个是21，不好判断，但是如果 &amp;16，5&amp;16是0，21&amp;16是 16，这样就可以判断了。
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }            //如果不需要移位，找个链表lo链起来
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }            //如果需要移位，找个链表hi链起来
+                        } while ((e = next) != null);
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }            //lo表的不动
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }            //hi表的放在加上旧表容量的位置
+                    }
+                }
+            }
+        }
+        return newTab;
+    }
+</code></pre>
+<h3 id="6-Remove"><a href="#6-Remove" class="headerlink" title="6.Remove"></a>6.Remove</h3><p>Remove的方法思路和get差不多，只是最后是—size</p>
+<pre><code class="lang-java">    /**
+     * Removes the mapping for the specified key from this map if present.
+     *
+     * @param  key key whose mapping is to be removed from the map
+     * @return the previous value associated with &lt;tt&gt;key&lt;/tt&gt;, or
+     *         &lt;tt&gt;null&lt;/tt&gt; if there was no mapping for &lt;tt&gt;key&lt;/tt&gt;.
+     *         (A &lt;tt&gt;null&lt;/tt&gt; return can also indicate that the map
+     *         previously associated &lt;tt&gt;null&lt;/tt&gt; with &lt;tt&gt;key&lt;/tt&gt;.)
+     */
+    public V remove(Object key) {
+        Node&lt;K,V&gt; e;
+        return (e = removeNode(hash(key), key, null, false, true)) == null ?
+            null : e.value;
+    }
+
+    /**
+     * Implements Map.remove and related methods
+     *
+     * @param hash hash for key
+     * @param key the key
+     * @param value the value to match if matchValue, else ignored
+     * @param matchValue if true only remove if value is equal
+     * @param movable if false do not move other nodes while removing
+     * @return the node, or null if none
+     */
+    final Node&lt;K,V&gt; removeNode(int hash, Object key, Object value,
+                               boolean matchValue, boolean movable) {
+        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, index;
+        if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;
+            (p = tab[index = (n - 1) &amp; hash]) != null) {
+            Node&lt;K,V&gt; node = null, e; K k; V v;
+            if (p.hash == hash &amp;&amp;
+                ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))
+                node = p;
+            else if ((e = p.next) != null) {
+                if (p instanceof TreeNode)
+                    node = ((TreeNode&lt;K,V&gt;)p).getTreeNode(hash, key);
+                else {
+                    do {
+                        if (e.hash == hash &amp;&amp;
+                            ((k = e.key) == key ||
+                             (key != null &amp;&amp; key.equals(k)))) {
+                            node = e;
+                            break;
+                        }
+                        p = e;
+                    } while ((e = e.next) != null);
+                }
+            }
+            if (node != null &amp;&amp; (!matchValue || (v = node.value) == value ||
+                                 (value != null &amp;&amp; value.equals(v)))) {
+                if (node instanceof TreeNode)
+                    ((TreeNode&lt;K,V&gt;)node).removeTreeNode(this, tab, movable);
+                else if (node == p)
+                    tab[index] = node.next;
+                else
+                    p.next = node.next;
+                ++modCount;
+                --size;
+                afterNodeRemoval(node);
+                return node;
+            }
+        }
+        return null;
+    }
+</code></pre>
+<h3 id="7-线程安全"><a href="#7-线程安全" class="headerlink" title="7.线程安全"></a>7.线程安全</h3><h4 id="Java-1-7"><a href="#Java-1-7" class="headerlink" title="Java 1.7"></a>Java 1.7</h4><p>在多线程使用场景中，应该尽量避免使用线程不安全的HashMap，而使用线程安全的ConcurrentHashMap。那么为什么说HashMap是线程不安全的，下面举例子说明在并发的多线程使用场景中使用HashMap可能造成死循环。代码例子如下(便于理解，仍然使用JDK1.7的环境)：</p>
+<pre><code class="lang-java">public class HashMapInfiniteLoop {  
+
+    private static HashMap&lt;Integer,String&gt; map = new HashMap&lt;Integer,String&gt;(2，0.75f);  
+    public static void main(String[] args) {  
+        map.put(5， &quot;C&quot;);  
+
+        new Thread(&quot;Thread1&quot;) {  
+            public void run() {  
+                map.put(7, &quot;B&quot;);  
+                System.out.println(map);  
+            };  
+        }.start();  
+        new Thread(&quot;Thread2&quot;) {  
+            public void run() {  
+                map.put(3, &quot;A);  
+                System.out.println(map);  
+            };  
+        }.start();        
+    }  
+}
+</code></pre>
+<p>其中，map初始化为一个长度为2的数组，loadFactor=0.75，threshold=2*0.75=1，也就是说当put第二个key的时候，map就需要进行resize。</p>
+<p>通过设置断点让线程1和线程2同时debug到transfer方法(3.3小节代码块)的首行。注意此时两个线程已经成功添加数据。放开thread1的断点至transfer方法的“Entry next = e.next;” 这一行；然后放开线程2的的断点，让线程2进行resize。结果如下图。<br><img data-src="https://ws2.sinaimg.cn/large/006tKfTcly1g0l53xl5zbj30k0092757.jpg" alt="jdk1.7 hashMap死循环例图1"></p>
+<p>注意，Thread1的 e 指向了key(3)，而next指向了key(7)，其在线程二rehash后，指向了线程二重组后的链表。</p>
+<p>线程一被调度回来执行，先是执行 newTalbe[i] = e， 然后是e = next，导致了e指向了key(7)，而下一次循环的next = e.next导致了next指向了key(3)。</p>
+<p><img data-src="https://ws2.sinaimg.cn/large/006tKfTcly1g0l54uk4i4j30k007k0t2.jpg" alt="jdk1.7 hashMap死循环例图2"></p>
+<p>e.next = newTable[i] 导致 key(3).next 指向了 key(7)。注意：此时的key(7).next 已经指向了key(3)， 环形链表就这样出现了。<br><img data-src="https://ws4.sinaimg.cn/large/006tKfTcly1g0l57eeta1j30k006zwf4.jpg" alt="5f3cf5300f041c771a736b40590fd7b1_hd"></p>
+<p>于是，当我们用线程一调用map.get(11)时，悲剧就出现了——Infinite Loop。</p>
+<h4 id="Java1-8"><a href="#Java1-8" class="headerlink" title="Java1.8"></a>Java1.8</h4><p>java1.8在resize的时候不再使用重新计算每个Hash值的方法，那么而且，它是把新元素插在链表的尾部，尾部的next指向null，那么久不会出现所谓无线循环。但依然是线程不安全的。</p>
+<p>详见：<em><a href="http://blog.csdn.net/u010412719/article/details/52049347" target="_blank" rel="noopener">http://blog.csdn.net/u010412719/article/details/52049347</a></em></p>
+<p>但是除了Infinite Loop，HashMap依然存在另一个问题：</p>
+<p><strong>fail-fast</strong></p>
+<p>如果在使用迭代器的过程中有其他线程修改了map，那么将抛出ConcurrentModificationException，这就是所谓fail-fast策略。</p>
+<p>这个异常意在提醒开发者及早意识到线程安全问题，具体原因请查看ConcurrentModificationException的原因以及解决措施</p>
+<h3 id="8-红黑树"><a href="#8-红黑树" class="headerlink" title="8. 红黑树"></a>8. 红黑树</h3><p>红黑树部分等我学了红黑树再说吧。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/image/qrcode.jpg" alt="Nightsnack Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/java源码/" rel="tag"># java源码</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/02/07/collection_modCount/" rel="prev" title="Java ModCount 和线程安全之间的关系">
+      <i class="fa fa-chevron-left"></i> Java ModCount 和线程安全之间的关系
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/02/08/inner-outer-class/" rel="next" title="内部类用法">
+      内部类用法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-HashMap-源码学习笔记"><span class="nav-number">1.</span> <span class="nav-text">Java HashMap 源码学习笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-常量初始化"><span class="nav-number">1.1.</span> <span class="nav-text">1.常量初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hash函数"><span class="nav-number">1.2.</span> <span class="nav-text">2.Hash函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-List式的bucket-Node"><span class="nav-number">1.3.</span> <span class="nav-text">3. List式的bucket Node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-get"><span class="nav-number">1.4.</span> <span class="nav-text">4.get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-put"><span class="nav-number">1.5.</span> <span class="nav-text">5.put</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-resize-扩容"><span class="nav-number">1.6.</span> <span class="nav-text">5.resize 扩容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Remove"><span class="nav-number">1.7.</span> <span class="nav-text">6.Remove</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-线程安全"><span class="nav-number">1.8.</span> <span class="nav-text">7.线程安全</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Java-1-7"><span class="nav-number">1.8.1.</span> <span class="nav-text">Java 1.7</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java1-8"><span class="nav-number">1.8.2.</span> <span class="nav-text">Java1.8</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-红黑树"><span class="nav-number">1.9.</span> <span class="nav-text">8. 红黑树</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Nightsnack</p>
+  <div class="site-description" itemprop="description">Code and Photos</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nigthsnack" title="GitHub → https://github.com/nigthsnack" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/nightsnackcai" title="Weibo → https://weibo.com/nightsnackcai" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.instagram.com/nightsnack_" title="Instagram → https://www.instagram.com/nightsnack_" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-Larry"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: '64bd779241743bbf9be4',
+      clientSecret: 'c872e156974fb473689f8571f507ada4430cb79d',
+      repo: 'nightsnack.github.io',
+      owner: 'nightsnack',
+      admin: ['nightsnack'],
+      id: 'd7f04adc4ab6e94b9edfc0de8a549f88',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

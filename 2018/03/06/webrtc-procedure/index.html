@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="rZ-Jwa76pMlBmWks1FiFsjy0D3kjWUkGGgyDjLsvXMQ">
+  <meta name="baidu-site-verification" content="TjN4MUjtls">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('https://nightsnack.github.io').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.7.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: true,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="WebRTC ApiPeerConnectionWebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
+<meta name="keywords" content="webrtc,前端,node.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webrtc通信过程">
+<meta property="og:url" content="https://nightsnack.github.io/2018/03/06/webrtc-procedure/index.html">
+<meta property="og:site_name" content="Larry&#39;s Blog">
+<meta property="og:description" content="WebRTC ApiPeerConnectionWebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-01-05T10:30:35.658Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="webrtc通信过程">
+<meta name="twitter:description" content="WebRTC ApiPeerConnectionWebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
+
+<link rel="canonical" href="https://nightsnack.github.io/2018/03/06/webrtc-procedure/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>webrtc通信过程 | Larry's Blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113531697-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-113531697-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Larry's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Personal Blog</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-timelines">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Timelines</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/nightsnack_" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2018/03/06/webrtc-procedure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Nightsnack">
+      <meta itemprop="description" content="Code and Photos">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Larry's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          webrtc通信过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-03-06 09:53:22" itemprop="dateCreated datePublished" datetime="2018-03-06T09:53:22+08:00">2018-03-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-01-05 18:30:35" itemprop="dateModified" datetime="2020-01-05T18:30:35+08:00">2020-01-05</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="WebRTC-Api"><a href="#WebRTC-Api" class="headerlink" title="WebRTC Api"></a>WebRTC Api</h3><h5 id="PeerConnection"><a href="#PeerConnection" class="headerlink" title="PeerConnection"></a>PeerConnection</h5><p>WebRTC中最主要的就是一个叫做<code>PeerConnection</code>的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个<code>PeerConnection</code>对象，WebRTC通过这个<code>PeerConnection</code>对象进行视频的发起、传输、接收和挂断等操作。</p>
+<a id="more"></a>
+<p>PeerConnection中包含的属性如下：</p>
+<ul>
+<li>localDescription：本地描述信息，类型：<code>RTCSessionDescription</code></li>
+<li>remoteDescription：远端描述信息，类型：<code>RTCSessionDescription</code></li>
+<li>onicecandidate：传入一个回调方法，该回调方法有一个返回参数，返回参数类型为：<code>RTCIceCandidateEvent</code>，</li>
+<li>onaddstream：传入一个回调方法，该回调方法有一个返回参数，返回参数类型为：``，如果检测到有远程媒体流传输到本地之后便会调用该方法。</li>
+<li>ondatachannel：（暂未用到）</li>
+<li>oniceconnectionstatechange：（暂未用到）</li>
+<li>onnegotiationneeded：（暂未用到）</li>
+<li>onremovestream：（暂未用到）</li>
+<li>onsignalingstatechange：（暂未用到）</li>
+</ul>
+<p><code>PeerConnection</code>中还包含了一些方法：</p>
+<ul>
+<li>setLocalDescription：设置本地offer，将自己的描述信息加入到<code>PeerConnection</code>中，参数类型：<code>RTCSessionDescription</code></li>
+<li>setRemoteDescription：设置远端的<code>answer</code>，将对方的描述信息加入到<code>PeerConnection</code>中，参数类型：<code>RTCSessionDescription</code></li>
+<li>createOffer：创建一个offer，需要传入两个参数，第一个参数是创建offer成功的回调方法，会返回创建好的offer，可以在这里将这个offer发送出去。第二个参数是创建失败的回调方法，会返回错误信息。</li>
+<li>createAnswer：创建一个<code>answer</code>，需要传入两个参数，第一个参数是创建<code>answer</code>成功的回调方法，会返回创建好的<code>answer</code>，可以在这里将这个<code>answer</code>发送出去。第二个参数是创建失败的回调方法，会返回错误信息。</li>
+<li>addIceCandidate：将打洞服务器加入到配置信息中，参数类型：<code>RTCIceCandidate</code></li>
+<li>addStream：向<code>PeerConnection</code>中加入需要发送的数据流，参数类型：<code>MediaStream</code></li>
+<li>close：</li>
+<li>createDTMFSender：</li>
+<li>createDataChannel：</li>
+<li>getLocalStreams：</li>
+<li>getRemoteStreams：</li>
+<li>getStats：</li>
+<li>getStreamById：</li>
+<li>removeStream：</li>
+<li>updateIce：</li>
+</ul>
+<h5 id="RTCSessionDescription"><a href="#RTCSessionDescription" class="headerlink" title="RTCSessionDescription"></a>RTCSessionDescription</h5><p><code>RTCSessionDescription</code>类型中包含了两个属性：</p>
+<ul>
+<li><p>sdp：a read-only <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMString" target="_blank" rel="noopener"><code>DOMString</code></a> containing the <a href="https://developer.mozilla.org/en-US/docs/Glossary/SDP" target="_blank" rel="noopener">SDP</a> which describes the session.</p>
+<p>​    </p>
+</li>
+<li><p>type：这个指明了是视频的接收方还是发起方</p>
+<p>​    This enum defines strings that describe the current state of the session description, as used in the <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription/type" target="_blank" rel="noopener"><code>type</code></a> property. The session description’s type will be specified using one of these values.</p>
+<p>| Value      | Description                              |<br>| ————— | ———————————————————— |<br>| <code>answer</code>   | The SDP contained in the <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription/sdp" target="_blank" rel="noopener"><code>sdp</code></a> property is the definitive choice in the exchange. In other words, this session description describes the agreed-upon configuration, and is being sent to finalize negotiation. |<br>| <code>offer</code>    | The session description object describes the initial proposal in an offer/answer exchange. The session negotiation process begins with an offer being sent from the caller to the callee. |<br>| <code>pranswer</code> | The session description object describe a provisional answer; that is, it’s a response to a previous offer or provisional answer. |<br>| <code>rollback</code> | This special type with an empty session description is used to roll back to the previous stable state. |</p>
+</li>
+</ul>
+<h3 id="Peer-to-Peer-Connection-通信过程"><a href="#Peer-to-Peer-Connection-通信过程" class="headerlink" title="Peer to Peer Connection 通信过程"></a>Peer to Peer Connection 通信过程</h3><p>用户A合用户B建立连接的过程（websocket通信）</p>
+<ol>
+<li><p>新建websocket的连接</p>
+<pre><code class="lang-javascript">var conn = new WebSocket(&#39;ws://localhost:9090&#39;);
+</code></pre>
+</li>
+<li><p>创建iceserver</p>
+<pre><code class="lang-javascript">var configuration = {
+                &quot;iceServers&quot;: [{ &quot;urls&quot;: &quot;stun:stun2.1.google.com:19302&quot; }]
+            };
+</code></pre>
+</li>
+<li><p>A获取UserMedia</p>
+<p>A创建PeerConnection</p>
+<p>向本地视频中加入当前视频流stream</p>
+<p>向PeerConnection中加入该stream</p>
+<pre><code class="lang-javascript">      navigator.getUserMedia = (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+        );
+
+    navigator.getUserMedia({ audio: false, video: true }, function(stream) {
+
+            //displaying local video stream on the page 
+            localVideo.srcObject = stream;
+
+            // setup a new PeerConnection
+            yourConn = new RTCPeerConnection(configuration);
+
+            // setup stream listening 
+            yourConn.addStream(stream);
+        }, function(error) {
+            console.log(error);
+        });
+</code></pre>
+</li>
+<li><p>A创建一个offer，把offer加入LocalDescription中</p>
+<pre><code class="lang-javascript">// create an offer 
+        yourConn.createOffer(function(offer) {
+            send({
+                type: &quot;offer&quot;,
+                offer: offer
+            });
+
+            yourConn.setLocalDescription(offer);
+        }
+</code></pre>
+</li>
+<li><p>A监听iceCandicate服务器信息，收到event后把其中的candicate发送出去</p>
+<pre><code class="lang-javascript">// 发送ICE候选到其他客户端
+            yourConn.onicecandidate = function(event) {
+                if (event.candidate) {
+                    send({
+                        type: &quot;candidate&quot;,
+                        candidate: event.candidate
+                    });
+                }
+            };
+</code></pre>
+</li>
+<li><p>websocket的connection监听offer，</p>
+<p>如果B收到offer，</p>
+<p>B将offer存入peerConnection中setRemoteDescription, 并创建一个answer并返回给A：</p>
+<pre><code class="lang-javascript">//when we got a message from a signaling server 
+conn.onmessage = function(msg) {
+    console.log(&quot;Got message&quot;, msg.data);
+
+    var data = JSON.parse(msg.data);
+
+    switch (data.type) {
+        case &quot;login&quot;:
+            handleLogin(data.success);
+            break;
+            //when somebody wants to call us 
+        case &quot;offer&quot;:
+            handleOffer(data.offer, data.name);
+            break;
+        case &quot;answer&quot;:
+            handleAnswer(data.answer);
+            break;
+            //when a remote peer sends an ice candidate to us 
+        case &quot;candidate&quot;:
+            handleCandidate(data.candidate);
+            break;
+        case &quot;leave&quot;:
+            handleLeave();
+            break;
+        default:
+            break;
+    }
+};
+
+//when somebody sends us an offer 
+function handleOffer(offer, name) {
+    connectedUser = name;
+      //offer存入peerConnection中,
+    yourConn.setRemoteDescription(new RTCSessionDescription(offer));
+
+    //create an answer to an offer 
+    yourConn.createAnswer(function(answer) {
+        yourConn.setLocalDescription(answer);
+
+        send({
+            type: &quot;answer&quot;,
+            answer: answer
+        });
+
+    }, function(error) {
+        alert(&quot;Error when creating an answer&quot;);
+    });
+};
+</code></pre>
+</li>
+<li><p>B收到了A发来的iceCandicate，将IceCandidate加入连接中</p>
+<pre><code class="lang-javascript">//when we got an ice candidate from a remote user 
+function handleCandidate(candidate) {
+    yourConn.addIceCandidate(new RTCIceCandidate(candidate));
+};
+</code></pre>
+</li>
+<li><p>B开始获取视音频数据，将视音频数据存入<code>PeerConnection</code>中，WebRTC便会自动将视音频数据发送给A。</p>
+<pre><code class="lang-javascript">            //这里在连接建立的时候就提前设置好远程连接的监听，一旦B把A添加
+
+            //when a remote user adds stream to the peer connection, we display it 
+            yourConn.onaddstream = function(e) {
+                remoteVideo.srcObject = e.stream;
+            };
+</code></pre>
+</li>
+<li><p>A接收到B返回的<code>answer</code>，将B返回的<code>answer</code>设置为<code>PeerConnection</code>的<code>remoteDescription</code>。</p>
+<pre><code class="lang-javascript">//when we got an answer from a remote user
+function handleAnswer(answer) {
+    yourConn.setRemoteDescription(new RTCSessionDescription(answer));
+};
+</code></pre>
+</li>
+<li><p>这个时候WebRTC会将视音频数据自动发送给B，A和B就建立起了实时视音频通信。</p>
+</li>
+</ol>
+<h3 id="全部代码"><a href="#全部代码" class="headerlink" title="全部代码"></a>全部代码</h3><pre><code class="lang-js">//our username 
+var name;
+var connectedUser;
+
+//connecting to our signaling server
+var conn = new WebSocket(&#39;ws://localhost:9090&#39;);
+
+conn.onopen = function() {
+    console.log(&quot;Connected to the signaling server&quot;);
+};
+
+//when we got a message from a signaling server 
+conn.onmessage = function(msg) {
+    console.log(&quot;Got message&quot;, msg.data);
+
+    var data = JSON.parse(msg.data);
+
+    switch (data.type) {
+        case &quot;login&quot;:
+            handleLogin(data.success);
+            break;
+            //when somebody wants to call us 
+        case &quot;offer&quot;:
+            handleOffer(data.offer, data.name);
+            break;
+        case &quot;answer&quot;:
+            handleAnswer(data.answer);
+            break;
+            //when a remote peer sends an ice candidate to us 
+        case &quot;candidate&quot;:
+            handleCandidate(data.candidate);
+            break;
+        case &quot;leave&quot;:
+            handleLeave();
+            break;
+        default:
+            break;
+    }
+};
+
+conn.onerror = function(err) {
+    console.log(&quot;Got error&quot;, err);
+};
+
+//alias for sending JSON encoded messages 
+function send(message) {
+    //attach the other peer username to our messages 
+    if (connectedUser) {
+        message.name = connectedUser;
+    }
+
+    conn.send(JSON.stringify(message));
+};
+
+//****** 
+//UI selectors block 
+//******
+
+var loginPage = document.querySelector(&#39;#loginPage&#39;);
+var usernameInput = document.querySelector(&#39;#usernameInput&#39;);
+var loginBtn = document.querySelector(&#39;#loginBtn&#39;);
+
+var callPage = document.querySelector(&#39;#callPage&#39;);
+var callToUsernameInput = document.querySelector(&#39;#callToUsernameInput&#39;);
+var callBtn = document.querySelector(&#39;#callBtn&#39;);
+
+var hangUpBtn = document.querySelector(&#39;#hangUpBtn&#39;);
+
+var localVideo = document.querySelector(&#39;#localVideo&#39;);
+var remoteVideo = document.querySelector(&#39;#remoteVideo&#39;);
+
+var yourConn;
+var stream;
+
+callPage.style.display = &quot;none&quot;;
+
+// Login when the user clicks the button 
+loginBtn.addEventListener(&quot;click&quot;, function(event) {
+    name = usernameInput.value;
+
+    if (name.length &gt; 0) {
+        send({
+            type: &quot;login&quot;,
+            name: name
+        });
+    }
+
+});
+
+function handleLogin(success) {
+    if (success === false) {
+        alert(&quot;Ooops...try a different username&quot;);
+    } else {
+        loginPage.style.display = &quot;none&quot;;
+        callPage.style.display = &quot;block&quot;;
+
+        //********************** 
+        //Starting a peer connection 
+        //********************** 
+
+        //getting local video stream 
+        navigator.getUserMedia = (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+        );
+
+        navigator.getUserMedia({ audio: false, video: true }, function(myStream) {
+            stream = myStream;
+
+            //displaying local video stream on the page 
+            localVideo.srcObject = stream;
+
+            //using Google public stun server 
+            var configuration = {
+                &quot;iceServers&quot;: [{ &quot;urls&quot;: &quot;stun:stun2.1.google.com:19302&quot; }]
+            };
+
+            yourConn = new RTCPeerConnection(configuration);
+
+            // setup stream listening 
+            yourConn.addStream(stream);
+
+            //when a remote user adds stream to the peer connection, we display it 
+            yourConn.onaddstream = function(e) {
+                remoteVideo.srcObject = e.stream;
+            };
+
+            // Setup ice handling ?????????
+            yourConn.onicecandidate = function(event) {
+                if (event.candidate) {
+                    send({
+                        type: &quot;candidate&quot;,
+                        candidate: event.candidate
+                    });
+                }
+            };
+
+        }, function(error) {
+            console.log(error);
+        });
+
+    }
+};
+
+//initiating a call 
+callBtn.addEventListener(&quot;click&quot;, function() {
+    var callToUsername = callToUsernameInput.value;
+
+    if (callToUsername.length &gt; 0) {
+
+        connectedUser = callToUsername;
+
+        // create an offer 
+        yourConn.createOffer(function(offer) {
+            send({
+                type: &quot;offer&quot;,
+                offer: offer
+            });
+
+            yourConn.setLocalDescription(offer);
+        }, function(error) {
+            alert(&quot;Error when creating an offer&quot;);
+        });
+
+    }
+});
+
+//when somebody sends us an offer 
+function handleOffer(offer, name) {
+    connectedUser = name;
+    yourConn.setRemoteDescription(new RTCSessionDescription(offer));
+
+    //create an answer to an offer 
+    yourConn.createAnswer(function(answer) {
+        yourConn.setLocalDescription(answer);
+
+        send({
+            type: &quot;answer&quot;,
+            answer: answer
+        });
+
+    }, function(error) {
+        alert(&quot;Error when creating an answer&quot;);
+    });
+};
+
+//when we got an answer from a remote user
+function handleAnswer(answer) {
+    yourConn.setRemoteDescription(new RTCSessionDescription(answer));
+};
+
+//when we got an ice candidate from a remote user 
+function handleCandidate(candidate) {
+    yourConn.addIceCandidate(new RTCIceCandidate(candidate));
+};
+
+//hang up 
+hangUpBtn.addEventListener(&quot;click&quot;, function() {
+
+    send({
+        type: &quot;leave&quot;
+    });
+
+    handleLeave();
+});
+
+function handleLeave() {
+    connectedUser = null;
+    remoteVideo.src = null;
+
+    yourConn.close();
+    yourConn.onicecandidate = null;
+    yourConn.onaddstream = null;
+};
+</code></pre>
+<h3 id="websocket代码："><a href="#websocket代码：" class="headerlink" title="websocket代码："></a>websocket代码：</h3><pre><code class="lang-js">//require our websocket library 
+var WebSocketServer = require(&#39;ws&#39;).Server; 
+
+//creating a websocket server at port 9090 
+var wss = new WebSocketServer({port: 9090}); 
+
+//all connected to the server users 
+var users = {};
+
+//when a user connects to our sever 
+wss.on(&#39;connection&#39;, function(connection) {
+
+   console.log(&quot;User connected&quot;);
+
+   //when server gets a message from a connected user 
+   connection.on(&#39;message&#39;, function(message) { 
+
+      var data; 
+
+      //accepting only JSON messages 
+      try { 
+         data = JSON.parse(message); 
+      } catch (e) { 
+         console.log(&quot;Invalid JSON&quot;); 
+         data = {}; 
+      }
+
+      //switching type of the user message 
+      switch (data.type) { 
+         //when a user tries to login
+         case &quot;login&quot;: 
+            console.log(&quot;User logged&quot;, data.name); 
+
+            //if anyone is logged in with this username then refuse 
+            if(users[data.name]) { 
+               sendTo(connection, { 
+                  type: &quot;login&quot;, 
+                  success: false 
+               }); 
+            } else { 
+               //save user connection on the server 
+               users[data.name] = connection; 
+               connection.name = data.name; 
+
+               sendTo(connection, { 
+                  type: &quot;login&quot;, 
+                  success: true 
+               }); 
+            } 
+
+            break;
+
+         case &quot;offer&quot;: 
+            //for ex. UserA wants to call UserB 
+            console.log(&quot;Sending offer to: &quot;, data.name);
+
+            //if UserB exists then send him offer details 
+            var conn = users[data.name]; 
+
+            if(conn != null) { 
+               //setting that UserA connected with UserB 
+               connection.otherName = data.name; 
+                //发给那个users[data.name]就是用户B，的conn，消息是用户A要给你发offer，里面带的name是用户A的名字    
+               sendTo(conn, { 
+                  type: &quot;offer&quot;, 
+                  offer: data.offer, 
+                  name: connection.name 
+               }); 
+            }
+
+            break;
+
+         case &quot;answer&quot;: 
+            console.log(&quot;Sending answer to: &quot;, data.name); 
+            //for ex. UserB answers UserA 
+            var conn = users[data.name]; 
+            //这个conn的B消息里发的data.name也就是A的名字，发给a一个answer
+            if(conn != null) { 
+               connection.otherName = data.name; 
+               sendTo(conn, { 
+                  type: &quot;answer&quot;, 
+                  answer: data.answer 
+               }); 
+            } 
+
+            break; 
+
+         case &quot;candidate&quot;: 
+            console.log(&quot;Sending candidate to:&quot;,data.name);
+            //同样，这是A发给B的candidate 
+            var conn = users[data.name];
+
+            if(conn != null) { 
+               sendTo(conn, { 
+                  type: &quot;candidate&quot;, 
+                  candidate: data.candidate 
+               }); 
+            } 
+
+            break;
+
+         case &quot;leave&quot;: 
+            console.log(&quot;Disconnecting from&quot;, data.name); 
+            var conn = users[data.name]; 
+            conn.otherName = null; 
+
+            //notify the other user so he can disconnect his peer connection 
+            if(conn != null) {
+               sendTo(conn, { 
+                  type: &quot;leave&quot; 
+              }); 
+            }
+
+            break;
+
+         default: 
+            sendTo(connection, { 
+               type: &quot;error&quot;, 
+               message: &quot;Command not found: &quot; + data.type 
+            }); 
+
+            break; 
+      }
+
+   }); 
+
+   //when user exits, for example closes a browser window 
+   //this may help if we are still in &quot;offer&quot;,&quot;answer&quot; or &quot;candidate&quot; state 
+   connection.on(&quot;close&quot;, function() { 
+
+      if(connection.name) { 
+         delete users[connection.name]; 
+
+         if(connection.otherName) { 
+            console.log(&quot;Disconnecting from &quot;, connection.otherName); 
+            var conn = users[connection.otherName]; 
+            conn.otherName = null;
+
+            if(conn != null) { 
+               sendTo(conn, { 
+                  type: &quot;leave&quot; 
+               }); 
+            }
+         } 
+      }
+
+   });  
+
+   connection.send(&quot;Hello world&quot;);  
+});
+
+function sendTo(connection, message) { 
+   connection.send(JSON.stringify(message)); 
+}
+</code></pre>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/image/qrcode.jpg" alt="Nightsnack Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/webrtc/" rel="tag"># webrtc</a>
+              <a href="/tags/前端/" rel="tag"># 前端</a>
+              <a href="/tags/node-js/" rel="tag"># node.js</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/02/15/bst-delete/" rel="prev" title="二叉查找树的删除操作">
+      <i class="fa fa-chevron-left"></i> 二叉查找树的删除操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/03/09/test-engineer/" rel="next" title="一个测试工程师走进一家酒吧">
+      一个测试工程师走进一家酒吧 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebRTC-Api"><span class="nav-number">1.</span> <span class="nav-text">WebRTC Api</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#PeerConnection"><span class="nav-number">1.0.1.</span> <span class="nav-text">PeerConnection</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RTCSessionDescription"><span class="nav-number">1.0.2.</span> <span class="nav-text">RTCSessionDescription</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Peer-to-Peer-Connection-通信过程"><span class="nav-number">2.</span> <span class="nav-text">Peer to Peer Connection 通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全部代码"><span class="nav-number">3.</span> <span class="nav-text">全部代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#websocket代码："><span class="nav-number">4.</span> <span class="nav-text">websocket代码：</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Nightsnack</p>
+  <div class="site-description" itemprop="description">Code and Photos</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nigthsnack" title="GitHub → https://github.com/nigthsnack" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/nightsnackcai" title="Weibo → https://weibo.com/nightsnackcai" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.instagram.com/nightsnack_" title="Instagram → https://www.instagram.com/nightsnack_" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-Larry"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+<script type="text/x-mathjax-config">
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script>
+  NexT.utils.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID: '64bd779241743bbf9be4',
+      clientSecret: 'c872e156974fb473689f8571f507ada4430cb79d',
+      repo: 'nightsnack.github.io',
+      owner: 'nightsnack',
+      admin: ['nightsnack'],
+      id: '4163783f7e8b4d45314471bf98a74b51',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
