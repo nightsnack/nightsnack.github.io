@@ -26,12 +26,12 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java ModCount 和线程安全之间的关系">
 <meta property="og:url" content="https://nightsnack.github.io/2018/02/06/collection_modCount/index.html">
-<meta property="og:site_name" content="Nightsnack&#39;s Secret Garden">
+<meta property="og:site_name" content="Yuxuan Cai - Personal Blog">
 <meta property="og:description" content="Java ModCount 和线程安全之间的关系 在ArrayList,LinkedList,HashMap等等的内部实现增，删，改中我们总能看到modCount的身影，modCount字面意思就是修改次数，但为什么要记录modCount的修改次数呢？ 大家发现一个公共特点没有，所有使用modCount属性的全是线程不安全的，这是为什么呢？说明这个玩意肯定和线程安全有关系喽，那有什么关系呢">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2018-02-07T04:16:49.000Z">
 <meta property="article:modified_time" content="2020-01-05T10:29:59.000Z">
-<meta property="article:author" content="Larry Tsai">
+<meta property="article:author" content="Yuxuan Cai">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="java源码">
 <meta property="article:tag" content="线程">
@@ -50,7 +50,7 @@
     lang   : 'en'
   };
 </script>
-<title>Java ModCount 和线程安全之间的关系 | Nightsnack's Secret Garden</title>
+<title>Java ModCount 和线程安全之间的关系 | Yuxuan Cai - Personal Blog</title>
   
 
 
@@ -110,10 +110,10 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <h1 class="site-title">Nightsnack's Secret Garden</h1>
+      <h1 class="site-title">Yuxuan Cai - Personal Blog</h1>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">Personal Blog</p>
+      <p class="site-subtitle" itemprop="description">Yuxuan Cai - Northeastern University</p>
   </div>
 
   <div class="site-nav-right">
@@ -128,12 +128,17 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/about/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
 
   </li>
-        <li class="menu-item menu-item-about">
+        <li class="menu-item menu-item-blog">
 
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+    <a href="/" rel="section"><i class="fas fa-blog fa-fw"></i>Blog</a>
+
+  </li>
+        <li class="menu-item menu-item-publications">
+
+    <a href="/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
 
   </li>
         <li class="menu-item menu-item-tags">
@@ -141,19 +146,9 @@
     <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
 
   </li>
-        <li class="menu-item menu-item-categories">
+        <li class="menu-item menu-item-resume">
 
-    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
-
-  </li>
-        <li class="menu-item menu-item-timeline">
-
-    <a href="/timeline/" rel="section"><i class="fa fa-archive fa-fw"></i>timeline</a>
-
-  </li>
-        <li class="menu-item menu-item-sitemap">
-
-    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+    <a href="/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
 
   </li>
   </ul>
@@ -173,7 +168,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -186,15 +181,14 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <section class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#java-modcount-%E5%92%8C%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.</span> <span class="nav-text">Java ModCount 和线程安全之间的关系</span></a></li></ol></div>
         </section>
         <!--/noindex-->
 
         <section class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Larry Tsai"
+    <img class="site-author-image" itemprop="image" alt="Yuxuan Cai"
       src="/image/avatar.png">
-  <p class="site-author-name" itemprop="name">Larry Tsai</p>
+  <p class="site-author-name" itemprop="name">Yuxuan Cai</p>
   <div class="site-description" itemprop="description">Publications and Resume</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
@@ -207,13 +201,11 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-          
         <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-          
         <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
@@ -224,16 +216,16 @@
         <a href="https://github.com/nightsnack" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nightsnack" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
-      </span>
-      <span class="links-of-author-item">
         <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
       </span>
       <span class="links-of-author-item">
         <a href="https://www.linkedin.com/in/yuxuan-cai-4a1833109" title="LinkedIn → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;yuxuan-cai-4a1833109" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>LinkedIn</a>
       </span>
       <span class="links-of-author-item">
-        <a href="https://weibo.com/nightsnackcai" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;nightsnackcai" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+        <a href="https://dblp.org/pid/209/5515.html" title="dblp → https:&#x2F;&#x2F;dblp.org&#x2F;pid&#x2F;209&#x2F;5515.html" rel="noopener" target="_blank"><i class="fas fa-file-code fa-fw"></i>dblp</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
       </span>
   </div>
 
@@ -276,12 +268,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/image/avatar.png">
-      <meta itemprop="name" content="Larry Tsai">
+      <meta itemprop="name" content="Yuxuan Cai">
       <meta itemprop="description" content="Publications and Resume">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Nightsnack's Secret Garden">
+      <meta itemprop="name" content="Yuxuan Cai - Personal Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
