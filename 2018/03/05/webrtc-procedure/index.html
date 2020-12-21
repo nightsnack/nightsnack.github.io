@@ -4,202 +4,247 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 3.9.0">
+<meta name="generator" content="Hexo 5.3.0">
+
+
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
   <link rel="mask-icon" href="/images/logo.svg" color="#222">
-  <meta name="google-site-verification" content="rZ-Jwa76pMlBmWks1FiFsjy0D3kjWUkGGgyDjLsvXMQ">
-  <meta name="baidu-site-verification" content="TjN4MUjtls">
 
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
 
-<script id="hexo-configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    hostname: new URL('https://nightsnack.github.io').hostname,
-    root: '/',
-    scheme: 'Gemini',
-    version: '7.7.0',
-    exturl: false,
-    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
-    copycode: {"enable":false,"show_result":false,"style":null},
-    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
-    bookmark: {"enable":false,"color":"#222","save":"auto"},
-    fancybox: false,
-    mediumzoom: false,
-    lazyload: true,
-    pangu: false,
-    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
-    algolia: {
-      appID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    },
-    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
-    path: 'search.xml',
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
-  };
-</script>
-
-  <meta name="description" content="WebRTC ApiPeerConnectionWebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
-<meta name="keywords" content="webrtc,前端,node.js">
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"nightsnack.github.io","root":"/","images":"/images","scheme":"Pisces","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="WebRTC Api PeerConnection WebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="webrtc通信过程">
 <meta property="og:url" content="https://nightsnack.github.io/2018/03/05/webrtc-procedure/index.html">
 <meta property="og:site_name" content="Nightsnack&#39;s Secret Garden">
-<meta property="og:description" content="WebRTC ApiPeerConnectionWebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
-<meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-01-05T10:30:35.658Z">
+<meta property="og:description" content="WebRTC Api PeerConnection WebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-03-06T01:53:22.000Z">
+<meta property="article:modified_time" content="2020-01-05T10:30:35.000Z">
+<meta property="article:author" content="Larry Tsai">
+<meta property="article:tag" content="webrtc">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="node.js">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="webrtc通信过程">
-<meta name="twitter:description" content="WebRTC ApiPeerConnectionWebRTC中最主要的就是一个叫做PeerConnection的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个PeerConnection对象，WebRTC通过这个PeerConnection对象进行视频的发起、传输、接收和挂断等操作。">
+
 
 <link rel="canonical" href="https://nightsnack.github.io/2018/03/05/webrtc-procedure/">
 
 
-<script id="page-configurations">
+<script class="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
   };
 </script>
-
-  <title>webrtc通信过程 | Nightsnack's Secret Garden</title>
+<title>webrtc通信过程 | Nightsnack's Secret Garden</title>
   
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113531697-1"></script>
-    <script>
-      if (CONFIG.hostname === location.hostname) {
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-113531697-1');
-      }
-    </script>
-
-
-
 
 
 
   <noscript>
   <style>
-  .use-motion .brand,
+  body { margin-top: 2rem; }
+
   .use-motion .menu-item,
-  .sidebar-inner,
+  .use-motion .sidebar,
   .use-motion .post-block,
   .use-motion .pagination,
   .use-motion .comments,
   .use-motion .post-header,
   .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
 
   .use-motion .site-title,
-  .use-motion .site-subtitle {
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
     opacity: initial;
     top: initial;
   }
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
   </style>
 </noscript>
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
 
+  <main class="main">
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
-  <div class="site-meta">
-
-    <div>
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Nightsnack's Secret Garden</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
-        <p class="site-subtitle">Personal Blog</p>
-  </div>
-
   <div class="site-nav-toggle">
     <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Nightsnack's Secret Garden</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Personal Blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
     </div>
   </div>
 </div>
 
 
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
 
   </li>
         <li class="menu-item menu-item-categories">
 
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
 
   </li>
-        <li class="menu-item menu-item-timelines">
+        <li class="menu-item menu-item-timeline">
 
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Timelines</a>
+    <a href="/timeline/" rel="section"><i class="fa fa-archive fa-fw"></i>timeline</a>
 
   </li>
-      <li class="menu-item menu-item-search">
-        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
-        </a>
-      </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
   </ul>
-
 </nav>
-  <div class="site-search">
-    <div class="popup search-popup">
-    <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="none"
-           placeholder="Searching..." spellcheck="false"
-           type="text" id="search-input">
-  </div>
-  <span class="popup-btn-close">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div id="search-result"></div>
+
+
+
 
 </div>
-<div class="search-pop-overlay"></div>
-
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
   </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#webrtc-api"><span class="nav-number">1.</span> <span class="nav-text">WebRTC Api</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#peerconnection"><span class="nav-number">1.0.1.</span> <span class="nav-text">PeerConnection</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#rtcsessiondescription"><span class="nav-number">1.0.2.</span> <span class="nav-text">RTCSessionDescription</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#peer-to-peer-connection-%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">Peer to Peer Connection 通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E9%83%A8%E4%BB%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">全部代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#websocket%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">websocket代码：</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Larry Tsai</p>
+  <div class="site-description" itemprop="description">Code and Photos</div>
 </div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nightsnack" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nightsnack" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/yuxuan-cai-4a1833109" title="LinkedIn → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;yuxuan-cai-4a1833109" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>LinkedIn</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/nightsnackcai" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;nightsnackcai" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
     </header>
 
     
@@ -208,22 +253,24 @@
     <span>0%</span>
   </div>
 
-  <a href="https://github.com/nightsnack_" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+  <a href="https://github.com/nightsnack" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
 
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
+    <div class="main-inner post posts-expand">
 
-          <div class="content">
-            
 
-  <div class="posts-expand">
-      
+  
+
+
+<div class="post-block">
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
     <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2018/03/05/webrtc-procedure/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -240,24 +287,26 @@
           webrtc通信过程
         </h1>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2018-03-06 09:53:22" itemprop="dateCreated datePublished" datetime="2018-03-06T09:53:22+08:00">2018-03-06</time>
-            </span>
+      <time title="Created: 2018-03-06 09:53:22" itemprop="dateCreated datePublished" datetime="2018-03-06T09:53:22+08:00">2018-03-06</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2020-01-05 18:30:35" itemprop="dateModified" datetime="2020-01-05T18:30:35+08:00">2020-01-05</time>
+      </span>
 
-          
-            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span id="busuanzi_value_page_pv"></span>
-            </span>
+  
+</div>
 
         </div>
       </header>
@@ -266,9 +315,9 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-        <h3 id="WebRTC-Api"><a href="#WebRTC-Api" class="headerlink" title="WebRTC Api"></a>WebRTC Api</h3><h5 id="PeerConnection"><a href="#PeerConnection" class="headerlink" title="PeerConnection"></a>PeerConnection</h5><p>WebRTC中最主要的就是一个叫做<code>PeerConnection</code>的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个<code>PeerConnection</code>对象，WebRTC通过这个<code>PeerConnection</code>对象进行视频的发起、传输、接收和挂断等操作。</p>
+        <h3 id="webrtc-api">WebRTC Api</h3>
+<h5 id="peerconnection">PeerConnection</h5>
+<p>WebRTC中最主要的就是一个叫做<code>PeerConnection</code>的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个<code>PeerConnection</code>对象，WebRTC通过这个<code>PeerConnection</code>对象进行视频的发起、传输、接收和挂断等操作。</p>
 <a id="more"></a>
 <p>PeerConnection中包含的属性如下：</p>
 <ul>
@@ -300,593 +349,122 @@
 <li>removeStream：</li>
 <li>updateIce：</li>
 </ul>
-<h5 id="RTCSessionDescription"><a href="#RTCSessionDescription" class="headerlink" title="RTCSessionDescription"></a>RTCSessionDescription</h5><p><code>RTCSessionDescription</code>类型中包含了两个属性：</p>
+<h5 id="rtcsessiondescription">RTCSessionDescription</h5>
+<p><code>RTCSessionDescription</code>类型中包含了两个属性：</p>
 <ul>
-<li><p>sdp：a read-only <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMString" target="_blank" rel="noopener"><code>DOMString</code></a> containing the <a href="https://developer.mozilla.org/en-US/docs/Glossary/SDP" target="_blank" rel="noopener">SDP</a> which describes the session.</p>
-<p>​    </p>
-</li>
+<li><p>sdp：a read-only <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/DOMString"><code>DOMString</code></a> containing the <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Glossary/SDP">SDP</a> which describes the session.</p>
+<p>​</p></li>
 <li><p>type：这个指明了是视频的接收方还是发起方</p>
-<p>​    This enum defines strings that describe the current state of the session description, as used in the <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription/type" target="_blank" rel="noopener"><code>type</code></a> property. The session description’s type will be specified using one of these values.</p>
-<p>| Value      | Description                              |<br>| ————— | ———————————————————— |<br>| <code>answer</code>   | The SDP contained in the <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription/sdp" target="_blank" rel="noopener"><code>sdp</code></a> property is the definitive choice in the exchange. In other words, this session description describes the agreed-upon configuration, and is being sent to finalize negotiation. |<br>| <code>offer</code>    | The session description object describes the initial proposal in an offer/answer exchange. The session negotiation process begins with an offer being sent from the caller to the callee. |<br>| <code>pranswer</code> | The session description object describe a provisional answer; that is, it’s a response to a previous offer or provisional answer. |<br>| <code>rollback</code> | This special type with an empty session description is used to roll back to the previous stable state. |</p>
-</li>
+<p>​ This enum defines strings that describe the current state of the session description, as used in the <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription/type"><code>type</code></a> property. The session description's type will be specified using one of these values.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>answer</code></td>
+<td>The SDP contained in the <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription/sdp"><code>sdp</code></a> property is the definitive choice in the exchange. In other words, this session description describes the agreed-upon configuration, and is being sent to finalize negotiation.</td>
+</tr>
+<tr class="even">
+<td><code>offer</code></td>
+<td>The session description object describes the initial proposal in an offer/answer exchange. The session negotiation process begins with an offer being sent from the caller to the callee.</td>
+</tr>
+<tr class="odd">
+<td><code>pranswer</code></td>
+<td>The session description object describe a provisional answer; that is, it's a response to a previous offer or provisional answer.</td>
+</tr>
+<tr class="even">
+<td><code>rollback</code></td>
+<td>This special type with an empty session description is used to roll back to the previous stable state.</td>
+</tr>
+</tbody>
+</table></li>
 </ul>
-<h3 id="Peer-to-Peer-Connection-通信过程"><a href="#Peer-to-Peer-Connection-通信过程" class="headerlink" title="Peer to Peer Connection 通信过程"></a>Peer to Peer Connection 通信过程</h3><p>用户A合用户B建立连接的过程（websocket通信）</p>
-<ol>
+<h3 id="peer-to-peer-connection-通信过程">Peer to Peer Connection 通信过程</h3>
+<p>用户A合用户B建立连接的过程（websocket通信）</p>
+<ol type="1">
 <li><p>新建websocket的连接</p>
-<pre><code class="lang-javascript">var conn = new WebSocket(&#39;ws://localhost:9090&#39;);
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> conn = <span class="keyword">new</span> WebSocket(<span class="string">&#x27;ws://localhost:9090&#x27;</span>);</span><br></pre></td></tr></table></figure></li>
 <li><p>创建iceserver</p>
-<pre><code class="lang-javascript">var configuration = {
-                &quot;iceServers&quot;: [{ &quot;urls&quot;: &quot;stun:stun2.1.google.com:19302&quot; }]
-            };
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> configuration = &#123;</span><br><span class="line">                <span class="string">&quot;iceServers&quot;</span>: [&#123; <span class="string">&quot;urls&quot;</span>: <span class="string">&quot;stun:stun2.1.google.com:19302&quot;</span> &#125;]</span><br><span class="line">            &#125;;</span><br></pre></td></tr></table></figure></li>
 <li><p>A获取UserMedia</p>
 <p>A创建PeerConnection</p>
 <p>向本地视频中加入当前视频流stream</p>
 <p>向PeerConnection中加入该stream</p>
-<pre><code class="lang-javascript">      navigator.getUserMedia = (
-            navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.msGetUserMedia
-        );
-
-    navigator.getUserMedia({ audio: false, video: true }, function(stream) {
-
-            //displaying local video stream on the page 
-            localVideo.srcObject = stream;
-
-            // setup a new PeerConnection
-            yourConn = new RTCPeerConnection(configuration);
-
-            // setup stream listening 
-            yourConn.addStream(stream);
-        }, function(error) {
-            console.log(error);
-        });
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">   navigator.getUserMedia = (</span><br><span class="line">         navigator.getUserMedia ||</span><br><span class="line">         navigator.webkitGetUserMedia ||</span><br><span class="line">         navigator.mozGetUserMedia ||</span><br><span class="line">         navigator.msGetUserMedia</span><br><span class="line">     );</span><br><span class="line"></span><br><span class="line"> navigator.getUserMedia(&#123; <span class="attr">audio</span>: <span class="literal">false</span>, <span class="attr">video</span>: <span class="literal">true</span> &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">stream</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">         <span class="comment">//displaying local video stream on the page </span></span><br><span class="line">         localVideo.srcObject = stream;</span><br><span class="line">     </span><br><span class="line"><span class="comment">// setup a new PeerConnection</span></span><br><span class="line">         yourConn = <span class="keyword">new</span> RTCPeerConnection(configuration);</span><br><span class="line"></span><br><span class="line">         <span class="comment">// setup stream listening </span></span><br><span class="line">         yourConn.addStream(stream);</span><br><span class="line">     &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">error</span>) </span>&#123;</span><br><span class="line">         <span class="built_in">console</span>.log(error);</span><br><span class="line">     &#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
 <li><p>A创建一个offer，把offer加入LocalDescription中</p>
-<pre><code class="lang-javascript">// create an offer 
-        yourConn.createOffer(function(offer) {
-            send({
-                type: &quot;offer&quot;,
-                offer: offer
-            });
-
-            yourConn.setLocalDescription(offer);
-        }
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// create an offer </span></span><br><span class="line">        yourConn.createOffer(<span class="function"><span class="keyword">function</span>(<span class="params">offer</span>) </span>&#123;</span><br><span class="line">            send(&#123;</span><br><span class="line">                type: <span class="string">&quot;offer&quot;</span>,</span><br><span class="line">                offer: offer</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            yourConn.setLocalDescription(offer);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure></li>
 <li><p>A监听iceCandicate服务器信息，收到event后把其中的candicate发送出去</p>
-<pre><code class="lang-javascript">// 发送ICE候选到其他客户端
-            yourConn.onicecandidate = function(event) {
-                if (event.candidate) {
-                    send({
-                        type: &quot;candidate&quot;,
-                        candidate: event.candidate
-                    });
-                }
-            };
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发送ICE候选到其他客户端</span></span><br><span class="line">            yourConn.onicecandidate = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (event.candidate) &#123;</span><br><span class="line">                    send(&#123;</span><br><span class="line">                        type: <span class="string">&quot;candidate&quot;</span>,</span><br><span class="line">                        candidate: event.candidate</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br></pre></td></tr></table></figure></li>
 <li><p>websocket的connection监听offer，</p>
 <p>如果B收到offer，</p>
 <p>B将offer存入peerConnection中setRemoteDescription, 并创建一个answer并返回给A：</p>
-<pre><code class="lang-javascript">//when we got a message from a signaling server 
-conn.onmessage = function(msg) {
-    console.log(&quot;Got message&quot;, msg.data);
-
-    var data = JSON.parse(msg.data);
-
-    switch (data.type) {
-        case &quot;login&quot;:
-            handleLogin(data.success);
-            break;
-            //when somebody wants to call us 
-        case &quot;offer&quot;:
-            handleOffer(data.offer, data.name);
-            break;
-        case &quot;answer&quot;:
-            handleAnswer(data.answer);
-            break;
-            //when a remote peer sends an ice candidate to us 
-        case &quot;candidate&quot;:
-            handleCandidate(data.candidate);
-            break;
-        case &quot;leave&quot;:
-            handleLeave();
-            break;
-        default:
-            break;
-    }
-};
-
-//when somebody sends us an offer 
-function handleOffer(offer, name) {
-    connectedUser = name;
-      //offer存入peerConnection中,
-    yourConn.setRemoteDescription(new RTCSessionDescription(offer));
-
-    //create an answer to an offer 
-    yourConn.createAnswer(function(answer) {
-        yourConn.setLocalDescription(answer);
-
-        send({
-            type: &quot;answer&quot;,
-            answer: answer
-        });
-
-    }, function(error) {
-        alert(&quot;Error when creating an answer&quot;);
-    });
-};
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//when we got a message from a signaling server </span></span><br><span class="line">conn.onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">msg</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;Got message&quot;</span>, msg.data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> data = <span class="built_in">JSON</span>.parse(msg.data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (data.type) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;login&quot;</span>:</span><br><span class="line">            handleLogin(data.success);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="comment">//when somebody wants to call us </span></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;offer&quot;</span>:</span><br><span class="line">            handleOffer(data.offer, data.name);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;answer&quot;</span>:</span><br><span class="line">            handleAnswer(data.answer);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="comment">//when a remote peer sends an ice candidate to us </span></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;candidate&quot;</span>:</span><br><span class="line">            handleCandidate(data.candidate);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;leave&quot;</span>:</span><br><span class="line">            handleLeave();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//when somebody sends us an offer </span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleOffer</span>(<span class="params">offer, name</span>) </span>&#123;</span><br><span class="line">    connectedUser = name;</span><br><span class="line">  	<span class="comment">//offer存入peerConnection中,</span></span><br><span class="line">    yourConn.setRemoteDescription(<span class="keyword">new</span> RTCSessionDescription(offer));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//create an answer to an offer </span></span><br><span class="line">    yourConn.createAnswer(<span class="function"><span class="keyword">function</span>(<span class="params">answer</span>) </span>&#123;</span><br><span class="line">        yourConn.setLocalDescription(answer);</span><br><span class="line"></span><br><span class="line">        send(&#123;</span><br><span class="line">            type: <span class="string">&quot;answer&quot;</span>,</span><br><span class="line">            answer: answer</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">error</span>) </span>&#123;</span><br><span class="line">        alert(<span class="string">&quot;Error when creating an answer&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
 <li><p>B收到了A发来的iceCandicate，将IceCandidate加入连接中</p>
-<pre><code class="lang-javascript">//when we got an ice candidate from a remote user 
-function handleCandidate(candidate) {
-    yourConn.addIceCandidate(new RTCIceCandidate(candidate));
-};
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//when we got an ice candidate from a remote user </span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleCandidate</span>(<span class="params">candidate</span>) </span>&#123;</span><br><span class="line">    yourConn.addIceCandidate(<span class="keyword">new</span> RTCIceCandidate(candidate));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
 <li><p>B开始获取视音频数据，将视音频数据存入<code>PeerConnection</code>中，WebRTC便会自动将视音频数据发送给A。</p>
-<pre><code class="lang-javascript">            //这里在连接建立的时候就提前设置好远程连接的监听，一旦B把A添加
-
-            //when a remote user adds stream to the peer connection, we display it 
-            yourConn.onaddstream = function(e) {
-                remoteVideo.srcObject = e.stream;
-            };
-</code></pre>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这里在连接建立的时候就提前设置好远程连接的监听，一旦B把A添加</span></span><br><span class="line"></span><br><span class="line">         <span class="comment">//when a remote user adds stream to the peer connection, we display it </span></span><br><span class="line">         yourConn.onaddstream = <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">             remoteVideo.srcObject = e.stream;</span><br><span class="line">         &#125;;</span><br></pre></td></tr></table></figure></li>
 <li><p>A接收到B返回的<code>answer</code>，将B返回的<code>answer</code>设置为<code>PeerConnection</code>的<code>remoteDescription</code>。</p>
-<pre><code class="lang-javascript">//when we got an answer from a remote user
-function handleAnswer(answer) {
-    yourConn.setRemoteDescription(new RTCSessionDescription(answer));
-};
-</code></pre>
-</li>
-<li><p>这个时候WebRTC会将视音频数据自动发送给B，A和B就建立起了实时视音频通信。</p>
-</li>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//when we got an answer from a remote user</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleAnswer</span>(<span class="params">answer</span>) </span>&#123;</span><br><span class="line">    yourConn.setRemoteDescription(<span class="keyword">new</span> RTCSessionDescription(answer));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li><p>这个时候WebRTC会将视音频数据自动发送给B，A和B就建立起了实时视音频通信。</p></li>
 </ol>
-<h3 id="全部代码"><a href="#全部代码" class="headerlink" title="全部代码"></a>全部代码</h3><pre><code class="lang-js">//our username 
-var name;
-var connectedUser;
-
-//connecting to our signaling server
-var conn = new WebSocket(&#39;ws://localhost:9090&#39;);
-
-conn.onopen = function() {
-    console.log(&quot;Connected to the signaling server&quot;);
-};
-
-//when we got a message from a signaling server 
-conn.onmessage = function(msg) {
-    console.log(&quot;Got message&quot;, msg.data);
-
-    var data = JSON.parse(msg.data);
-
-    switch (data.type) {
-        case &quot;login&quot;:
-            handleLogin(data.success);
-            break;
-            //when somebody wants to call us 
-        case &quot;offer&quot;:
-            handleOffer(data.offer, data.name);
-            break;
-        case &quot;answer&quot;:
-            handleAnswer(data.answer);
-            break;
-            //when a remote peer sends an ice candidate to us 
-        case &quot;candidate&quot;:
-            handleCandidate(data.candidate);
-            break;
-        case &quot;leave&quot;:
-            handleLeave();
-            break;
-        default:
-            break;
-    }
-};
-
-conn.onerror = function(err) {
-    console.log(&quot;Got error&quot;, err);
-};
-
-//alias for sending JSON encoded messages 
-function send(message) {
-    //attach the other peer username to our messages 
-    if (connectedUser) {
-        message.name = connectedUser;
-    }
-
-    conn.send(JSON.stringify(message));
-};
-
-//****** 
-//UI selectors block 
-//******
-
-var loginPage = document.querySelector(&#39;#loginPage&#39;);
-var usernameInput = document.querySelector(&#39;#usernameInput&#39;);
-var loginBtn = document.querySelector(&#39;#loginBtn&#39;);
-
-var callPage = document.querySelector(&#39;#callPage&#39;);
-var callToUsernameInput = document.querySelector(&#39;#callToUsernameInput&#39;);
-var callBtn = document.querySelector(&#39;#callBtn&#39;);
-
-var hangUpBtn = document.querySelector(&#39;#hangUpBtn&#39;);
-
-var localVideo = document.querySelector(&#39;#localVideo&#39;);
-var remoteVideo = document.querySelector(&#39;#remoteVideo&#39;);
-
-var yourConn;
-var stream;
-
-callPage.style.display = &quot;none&quot;;
-
-// Login when the user clicks the button 
-loginBtn.addEventListener(&quot;click&quot;, function(event) {
-    name = usernameInput.value;
-
-    if (name.length &gt; 0) {
-        send({
-            type: &quot;login&quot;,
-            name: name
-        });
-    }
-
-});
-
-function handleLogin(success) {
-    if (success === false) {
-        alert(&quot;Ooops...try a different username&quot;);
-    } else {
-        loginPage.style.display = &quot;none&quot;;
-        callPage.style.display = &quot;block&quot;;
-
-        //********************** 
-        //Starting a peer connection 
-        //********************** 
-
-        //getting local video stream 
-        navigator.getUserMedia = (
-            navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.msGetUserMedia
-        );
-
-        navigator.getUserMedia({ audio: false, video: true }, function(myStream) {
-            stream = myStream;
-
-            //displaying local video stream on the page 
-            localVideo.srcObject = stream;
-
-            //using Google public stun server 
-            var configuration = {
-                &quot;iceServers&quot;: [{ &quot;urls&quot;: &quot;stun:stun2.1.google.com:19302&quot; }]
-            };
-
-            yourConn = new RTCPeerConnection(configuration);
-
-            // setup stream listening 
-            yourConn.addStream(stream);
-
-            //when a remote user adds stream to the peer connection, we display it 
-            yourConn.onaddstream = function(e) {
-                remoteVideo.srcObject = e.stream;
-            };
-
-            // Setup ice handling ?????????
-            yourConn.onicecandidate = function(event) {
-                if (event.candidate) {
-                    send({
-                        type: &quot;candidate&quot;,
-                        candidate: event.candidate
-                    });
-                }
-            };
-
-        }, function(error) {
-            console.log(error);
-        });
-
-    }
-};
-
-//initiating a call 
-callBtn.addEventListener(&quot;click&quot;, function() {
-    var callToUsername = callToUsernameInput.value;
-
-    if (callToUsername.length &gt; 0) {
-
-        connectedUser = callToUsername;
-
-        // create an offer 
-        yourConn.createOffer(function(offer) {
-            send({
-                type: &quot;offer&quot;,
-                offer: offer
-            });
-
-            yourConn.setLocalDescription(offer);
-        }, function(error) {
-            alert(&quot;Error when creating an offer&quot;);
-        });
-
-    }
-});
-
-//when somebody sends us an offer 
-function handleOffer(offer, name) {
-    connectedUser = name;
-    yourConn.setRemoteDescription(new RTCSessionDescription(offer));
-
-    //create an answer to an offer 
-    yourConn.createAnswer(function(answer) {
-        yourConn.setLocalDescription(answer);
-
-        send({
-            type: &quot;answer&quot;,
-            answer: answer
-        });
-
-    }, function(error) {
-        alert(&quot;Error when creating an answer&quot;);
-    });
-};
-
-//when we got an answer from a remote user
-function handleAnswer(answer) {
-    yourConn.setRemoteDescription(new RTCSessionDescription(answer));
-};
-
-//when we got an ice candidate from a remote user 
-function handleCandidate(candidate) {
-    yourConn.addIceCandidate(new RTCIceCandidate(candidate));
-};
-
-//hang up 
-hangUpBtn.addEventListener(&quot;click&quot;, function() {
-
-    send({
-        type: &quot;leave&quot;
-    });
-
-    handleLeave();
-});
-
-function handleLeave() {
-    connectedUser = null;
-    remoteVideo.src = null;
-
-    yourConn.close();
-    yourConn.onicecandidate = null;
-    yourConn.onaddstream = null;
-};
-</code></pre>
-<h3 id="websocket代码："><a href="#websocket代码：" class="headerlink" title="websocket代码："></a>websocket代码：</h3><pre><code class="lang-js">//require our websocket library 
-var WebSocketServer = require(&#39;ws&#39;).Server; 
-
-//creating a websocket server at port 9090 
-var wss = new WebSocketServer({port: 9090}); 
-
-//all connected to the server users 
-var users = {};
-
-//when a user connects to our sever 
-wss.on(&#39;connection&#39;, function(connection) {
-
-   console.log(&quot;User connected&quot;);
-
-   //when server gets a message from a connected user 
-   connection.on(&#39;message&#39;, function(message) { 
-
-      var data; 
-
-      //accepting only JSON messages 
-      try { 
-         data = JSON.parse(message); 
-      } catch (e) { 
-         console.log(&quot;Invalid JSON&quot;); 
-         data = {}; 
-      }
-
-      //switching type of the user message 
-      switch (data.type) { 
-         //when a user tries to login
-         case &quot;login&quot;: 
-            console.log(&quot;User logged&quot;, data.name); 
-
-            //if anyone is logged in with this username then refuse 
-            if(users[data.name]) { 
-               sendTo(connection, { 
-                  type: &quot;login&quot;, 
-                  success: false 
-               }); 
-            } else { 
-               //save user connection on the server 
-               users[data.name] = connection; 
-               connection.name = data.name; 
-
-               sendTo(connection, { 
-                  type: &quot;login&quot;, 
-                  success: true 
-               }); 
-            } 
-
-            break;
-
-         case &quot;offer&quot;: 
-            //for ex. UserA wants to call UserB 
-            console.log(&quot;Sending offer to: &quot;, data.name);
-
-            //if UserB exists then send him offer details 
-            var conn = users[data.name]; 
-
-            if(conn != null) { 
-               //setting that UserA connected with UserB 
-               connection.otherName = data.name; 
-                //发给那个users[data.name]就是用户B，的conn，消息是用户A要给你发offer，里面带的name是用户A的名字    
-               sendTo(conn, { 
-                  type: &quot;offer&quot;, 
-                  offer: data.offer, 
-                  name: connection.name 
-               }); 
-            }
-
-            break;
-
-         case &quot;answer&quot;: 
-            console.log(&quot;Sending answer to: &quot;, data.name); 
-            //for ex. UserB answers UserA 
-            var conn = users[data.name]; 
-            //这个conn的B消息里发的data.name也就是A的名字，发给a一个answer
-            if(conn != null) { 
-               connection.otherName = data.name; 
-               sendTo(conn, { 
-                  type: &quot;answer&quot;, 
-                  answer: data.answer 
-               }); 
-            } 
-
-            break; 
-
-         case &quot;candidate&quot;: 
-            console.log(&quot;Sending candidate to:&quot;,data.name);
-            //同样，这是A发给B的candidate 
-            var conn = users[data.name];
-
-            if(conn != null) { 
-               sendTo(conn, { 
-                  type: &quot;candidate&quot;, 
-                  candidate: data.candidate 
-               }); 
-            } 
-
-            break;
-
-         case &quot;leave&quot;: 
-            console.log(&quot;Disconnecting from&quot;, data.name); 
-            var conn = users[data.name]; 
-            conn.otherName = null; 
-
-            //notify the other user so he can disconnect his peer connection 
-            if(conn != null) {
-               sendTo(conn, { 
-                  type: &quot;leave&quot; 
-              }); 
-            }
-
-            break;
-
-         default: 
-            sendTo(connection, { 
-               type: &quot;error&quot;, 
-               message: &quot;Command not found: &quot; + data.type 
-            }); 
-
-            break; 
-      }
-
-   }); 
-
-   //when user exits, for example closes a browser window 
-   //this may help if we are still in &quot;offer&quot;,&quot;answer&quot; or &quot;candidate&quot; state 
-   connection.on(&quot;close&quot;, function() { 
-
-      if(connection.name) { 
-         delete users[connection.name]; 
-
-         if(connection.otherName) { 
-            console.log(&quot;Disconnecting from &quot;, connection.otherName); 
-            var conn = users[connection.otherName]; 
-            conn.otherName = null;
-
-            if(conn != null) { 
-               sendTo(conn, { 
-                  type: &quot;leave&quot; 
-               }); 
-            }
-         } 
-      }
-
-   });  
-
-   connection.send(&quot;Hello world&quot;);  
-});
-
-function sendTo(connection, message) { 
-   connection.send(JSON.stringify(message)); 
-}
-</code></pre>
+<h3 id="全部代码">全部代码</h3>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//our username </span></span><br><span class="line"><span class="keyword">var</span> name;</span><br><span class="line"><span class="keyword">var</span> connectedUser;</span><br><span class="line"></span><br><span class="line"><span class="comment">//connecting to our signaling server</span></span><br><span class="line"><span class="keyword">var</span> conn = <span class="keyword">new</span> WebSocket(<span class="string">&#x27;ws://localhost:9090&#x27;</span>);</span><br><span class="line"></span><br><span class="line">conn.onopen = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;Connected to the signaling server&quot;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//when we got a message from a signaling server </span></span><br><span class="line">conn.onmessage = <span class="function"><span class="keyword">function</span>(<span class="params">msg</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;Got message&quot;</span>, msg.data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> data = <span class="built_in">JSON</span>.parse(msg.data);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (data.type) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;login&quot;</span>:</span><br><span class="line">            handleLogin(data.success);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="comment">//when somebody wants to call us </span></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;offer&quot;</span>:</span><br><span class="line">            handleOffer(data.offer, data.name);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;answer&quot;</span>:</span><br><span class="line">            handleAnswer(data.answer);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="comment">//when a remote peer sends an ice candidate to us </span></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;candidate&quot;</span>:</span><br><span class="line">            handleCandidate(data.candidate);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;leave&quot;</span>:</span><br><span class="line">            handleLeave();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">conn.onerror = <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;Got error&quot;</span>, err);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//alias for sending JSON encoded messages </span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">send</span>(<span class="params">message</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//attach the other peer username to our messages </span></span><br><span class="line">    <span class="keyword">if</span> (connectedUser) &#123;</span><br><span class="line">        message.name = connectedUser;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    conn.send(<span class="built_in">JSON</span>.stringify(message));</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//****** </span></span><br><span class="line"><span class="comment">//UI selectors block </span></span><br><span class="line"><span class="comment">//******</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> loginPage = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#loginPage&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> usernameInput = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#usernameInput&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> loginBtn = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#loginBtn&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> callPage = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#callPage&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> callToUsernameInput = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#callToUsernameInput&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> callBtn = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#callBtn&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> hangUpBtn = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#hangUpBtn&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> localVideo = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#localVideo&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> remoteVideo = <span class="built_in">document</span>.querySelector(<span class="string">&#x27;#remoteVideo&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> yourConn;</span><br><span class="line"><span class="keyword">var</span> stream;</span><br><span class="line"></span><br><span class="line">callPage.style.display = <span class="string">&quot;none&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Login when the user clicks the button </span></span><br><span class="line">loginBtn.addEventListener(<span class="string">&quot;click&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">    name = usernameInput.value;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (name.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        send(&#123;</span><br><span class="line">            type: <span class="string">&quot;login&quot;</span>,</span><br><span class="line">            name: name</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleLogin</span>(<span class="params">success</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (success === <span class="literal">false</span>) &#123;</span><br><span class="line">        alert(<span class="string">&quot;Ooops...try a different username&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        loginPage.style.display = <span class="string">&quot;none&quot;</span>;</span><br><span class="line">        callPage.style.display = <span class="string">&quot;block&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//********************** </span></span><br><span class="line">        <span class="comment">//Starting a peer connection </span></span><br><span class="line">        <span class="comment">//********************** </span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//getting local video stream </span></span><br><span class="line">        navigator.getUserMedia = (</span><br><span class="line">            navigator.getUserMedia ||</span><br><span class="line">            navigator.webkitGetUserMedia ||</span><br><span class="line">            navigator.mozGetUserMedia ||</span><br><span class="line">            navigator.msGetUserMedia</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        navigator.getUserMedia(&#123; <span class="attr">audio</span>: <span class="literal">false</span>, <span class="attr">video</span>: <span class="literal">true</span> &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">myStream</span>) </span>&#123;</span><br><span class="line">            stream = myStream;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//displaying local video stream on the page </span></span><br><span class="line">            localVideo.srcObject = stream;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//using Google public stun server </span></span><br><span class="line">            <span class="keyword">var</span> configuration = &#123;</span><br><span class="line">                <span class="string">&quot;iceServers&quot;</span>: [&#123; <span class="string">&quot;urls&quot;</span>: <span class="string">&quot;stun:stun2.1.google.com:19302&quot;</span> &#125;]</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            yourConn = <span class="keyword">new</span> RTCPeerConnection(configuration);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// setup stream listening </span></span><br><span class="line">            yourConn.addStream(stream);</span><br><span class="line"></span><br><span class="line">            <span class="comment">//when a remote user adds stream to the peer connection, we display it </span></span><br><span class="line">            yourConn.onaddstream = <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">                remoteVideo.srcObject = e.stream;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Setup ice handling ?????????</span></span><br><span class="line">            yourConn.onicecandidate = <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (event.candidate) &#123;</span><br><span class="line">                    send(&#123;</span><br><span class="line">                        type: <span class="string">&quot;candidate&quot;</span>,</span><br><span class="line">                        candidate: event.candidate</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line"></span><br><span class="line">        &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">error</span>) </span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(error);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//initiating a call </span></span><br><span class="line">callBtn.addEventListener(<span class="string">&quot;click&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> callToUsername = callToUsernameInput.value;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (callToUsername.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">        connectedUser = callToUsername;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// create an offer </span></span><br><span class="line">        yourConn.createOffer(<span class="function"><span class="keyword">function</span>(<span class="params">offer</span>) </span>&#123;</span><br><span class="line">            send(&#123;</span><br><span class="line">                type: <span class="string">&quot;offer&quot;</span>,</span><br><span class="line">                offer: offer</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            yourConn.setLocalDescription(offer);</span><br><span class="line">        &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">error</span>) </span>&#123;</span><br><span class="line">            alert(<span class="string">&quot;Error when creating an offer&quot;</span>);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//when somebody sends us an offer </span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleOffer</span>(<span class="params">offer, name</span>) </span>&#123;</span><br><span class="line">    connectedUser = name;</span><br><span class="line">    yourConn.setRemoteDescription(<span class="keyword">new</span> RTCSessionDescription(offer));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//create an answer to an offer </span></span><br><span class="line">    yourConn.createAnswer(<span class="function"><span class="keyword">function</span>(<span class="params">answer</span>) </span>&#123;</span><br><span class="line">        yourConn.setLocalDescription(answer);</span><br><span class="line"></span><br><span class="line">        send(&#123;</span><br><span class="line">            type: <span class="string">&quot;answer&quot;</span>,</span><br><span class="line">            answer: answer</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">error</span>) </span>&#123;</span><br><span class="line">        alert(<span class="string">&quot;Error when creating an answer&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//when we got an answer from a remote user</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleAnswer</span>(<span class="params">answer</span>) </span>&#123;</span><br><span class="line">    yourConn.setRemoteDescription(<span class="keyword">new</span> RTCSessionDescription(answer));</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//when we got an ice candidate from a remote user </span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleCandidate</span>(<span class="params">candidate</span>) </span>&#123;</span><br><span class="line">    yourConn.addIceCandidate(<span class="keyword">new</span> RTCIceCandidate(candidate));</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//hang up </span></span><br><span class="line">hangUpBtn.addEventListener(<span class="string">&quot;click&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    send(&#123;</span><br><span class="line">        type: <span class="string">&quot;leave&quot;</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    handleLeave();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleLeave</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    connectedUser = <span class="literal">null</span>;</span><br><span class="line">    remoteVideo.src = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    yourConn.close();</span><br><span class="line">    yourConn.onicecandidate = <span class="literal">null</span>;</span><br><span class="line">    yourConn.onaddstream = <span class="literal">null</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="websocket代码">websocket代码：</h3>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//require our websocket library </span></span><br><span class="line"><span class="keyword">var</span> WebSocketServer = <span class="built_in">require</span>(<span class="string">&#x27;ws&#x27;</span>).Server; </span><br><span class="line"></span><br><span class="line"><span class="comment">//creating a websocket server at port 9090 </span></span><br><span class="line"><span class="keyword">var</span> wss = <span class="keyword">new</span> WebSocketServer(&#123;<span class="attr">port</span>: <span class="number">9090</span>&#125;); </span><br><span class="line"></span><br><span class="line"><span class="comment">//all connected to the server users </span></span><br><span class="line"><span class="keyword">var</span> users = &#123;&#125;;</span><br><span class="line">  </span><br><span class="line"><span class="comment">//when a user connects to our sever </span></span><br><span class="line">wss.on(<span class="string">&#x27;connection&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">connection</span>) </span>&#123;</span><br><span class="line">  </span><br><span class="line">   <span class="built_in">console</span>.log(<span class="string">&quot;User connected&quot;</span>);</span><br><span class="line">	</span><br><span class="line">   <span class="comment">//when server gets a message from a connected user </span></span><br><span class="line">   connection.on(<span class="string">&#x27;message&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">message</span>) </span>&#123; </span><br><span class="line">	</span><br><span class="line">      <span class="keyword">var</span> data; </span><br><span class="line">		</span><br><span class="line">      <span class="comment">//accepting only JSON messages </span></span><br><span class="line">      <span class="keyword">try</span> &#123; </span><br><span class="line">         data = <span class="built_in">JSON</span>.parse(message); </span><br><span class="line">      &#125; <span class="keyword">catch</span> (e) &#123; </span><br><span class="line">         <span class="built_in">console</span>.log(<span class="string">&quot;Invalid JSON&quot;</span>); </span><br><span class="line">         data = &#123;&#125;; </span><br><span class="line">      &#125;</span><br><span class="line">		</span><br><span class="line">      <span class="comment">//switching type of the user message </span></span><br><span class="line">      <span class="keyword">switch</span> (data.type) &#123; </span><br><span class="line">         <span class="comment">//when a user tries to login</span></span><br><span class="line">         <span class="keyword">case</span> <span class="string">&quot;login&quot;</span>: </span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;User logged&quot;</span>, data.name); </span><br><span class="line">				</span><br><span class="line">            <span class="comment">//if anyone is logged in with this username then refuse </span></span><br><span class="line">            <span class="keyword">if</span>(users[data.name]) &#123; </span><br><span class="line">               sendTo(connection, &#123; </span><br><span class="line">                  type: <span class="string">&quot;login&quot;</span>, </span><br><span class="line">                  success: <span class="literal">false</span> </span><br><span class="line">               &#125;); </span><br><span class="line">            &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">               <span class="comment">//save user connection on the server </span></span><br><span class="line">               users[data.name] = connection; </span><br><span class="line">               connection.name = data.name; </span><br><span class="line">					</span><br><span class="line">               sendTo(connection, &#123; </span><br><span class="line">                  type: <span class="string">&quot;login&quot;</span>, </span><br><span class="line">                  success: <span class="literal">true</span> </span><br><span class="line">               &#125;); </span><br><span class="line">            &#125; </span><br><span class="line">				</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">				</span><br><span class="line">         <span class="keyword">case</span> <span class="string">&quot;offer&quot;</span>: </span><br><span class="line">            <span class="comment">//for ex. UserA wants to call UserB </span></span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Sending offer to: &quot;</span>, data.name);</span><br><span class="line">				</span><br><span class="line">            <span class="comment">//if UserB exists then send him offer details </span></span><br><span class="line">            <span class="keyword">var</span> conn = users[data.name]; </span><br><span class="line">				</span><br><span class="line">            <span class="keyword">if</span>(conn != <span class="literal">null</span>) &#123; </span><br><span class="line">               <span class="comment">//setting that UserA connected with UserB </span></span><br><span class="line">               connection.otherName = data.name; </span><br><span class="line">				<span class="comment">//发给那个users[data.name]就是用户B，的conn，消息是用户A要给你发offer，里面带的name是用户A的名字	</span></span><br><span class="line">               sendTo(conn, &#123; </span><br><span class="line">                  type: <span class="string">&quot;offer&quot;</span>, </span><br><span class="line">                  offer: data.offer, </span><br><span class="line">                  name: connection.name </span><br><span class="line">               &#125;); </span><br><span class="line">            &#125;</span><br><span class="line">				</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">				</span><br><span class="line">         <span class="keyword">case</span> <span class="string">&quot;answer&quot;</span>: </span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Sending answer to: &quot;</span>, data.name); </span><br><span class="line">            <span class="comment">//for ex. UserB answers UserA </span></span><br><span class="line">            <span class="keyword">var</span> conn = users[data.name]; </span><br><span class="line">			<span class="comment">//这个conn的B消息里发的data.name也就是A的名字，发给a一个answer</span></span><br><span class="line">            <span class="keyword">if</span>(conn != <span class="literal">null</span>) &#123; </span><br><span class="line">               connection.otherName = data.name; </span><br><span class="line">               sendTo(conn, &#123; </span><br><span class="line">                  type: <span class="string">&quot;answer&quot;</span>, </span><br><span class="line">                  answer: data.answer </span><br><span class="line">               &#125;); </span><br><span class="line">            &#125; </span><br><span class="line">				</span><br><span class="line">            <span class="keyword">break</span>; </span><br><span class="line">				</span><br><span class="line">         <span class="keyword">case</span> <span class="string">&quot;candidate&quot;</span>: </span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Sending candidate to:&quot;</span>,data.name);</span><br><span class="line">            <span class="comment">//同样，这是A发给B的candidate </span></span><br><span class="line">            <span class="keyword">var</span> conn = users[data.name];</span><br><span class="line">				</span><br><span class="line">            <span class="keyword">if</span>(conn != <span class="literal">null</span>) &#123; </span><br><span class="line">               sendTo(conn, &#123; </span><br><span class="line">                  type: <span class="string">&quot;candidate&quot;</span>, </span><br><span class="line">                  candidate: data.candidate </span><br><span class="line">               &#125;); </span><br><span class="line">            &#125; </span><br><span class="line">				</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">				</span><br><span class="line">         <span class="keyword">case</span> <span class="string">&quot;leave&quot;</span>: </span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Disconnecting from&quot;</span>, data.name); </span><br><span class="line">            <span class="keyword">var</span> conn = users[data.name]; </span><br><span class="line">            conn.otherName = <span class="literal">null</span>; </span><br><span class="line">				</span><br><span class="line">            <span class="comment">//notify the other user so he can disconnect his peer connection </span></span><br><span class="line">            <span class="keyword">if</span>(conn != <span class="literal">null</span>) &#123;</span><br><span class="line">               sendTo(conn, &#123; </span><br><span class="line">                  type: <span class="string">&quot;leave&quot;</span> </span><br><span class="line">              &#125;); </span><br><span class="line">            &#125;</span><br><span class="line">				</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">				</span><br><span class="line">         <span class="keyword">default</span>: </span><br><span class="line">            sendTo(connection, &#123; </span><br><span class="line">               type: <span class="string">&quot;error&quot;</span>, </span><br><span class="line">               message: <span class="string">&quot;Command not found: &quot;</span> + data.type </span><br><span class="line">            &#125;); </span><br><span class="line">				</span><br><span class="line">            <span class="keyword">break</span>; </span><br><span class="line">      &#125;</span><br><span class="line">		</span><br><span class="line">   &#125;); </span><br><span class="line">	</span><br><span class="line">   <span class="comment">//when user exits, for example closes a browser window </span></span><br><span class="line">   <span class="comment">//this may help if we are still in &quot;offer&quot;,&quot;answer&quot; or &quot;candidate&quot; state </span></span><br><span class="line">   connection.on(<span class="string">&quot;close&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line">	</span><br><span class="line">      <span class="keyword">if</span>(connection.name) &#123; </span><br><span class="line">         <span class="keyword">delete</span> users[connection.name]; </span><br><span class="line">			</span><br><span class="line">         <span class="keyword">if</span>(connection.otherName) &#123; </span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">&quot;Disconnecting from &quot;</span>, connection.otherName); </span><br><span class="line">            <span class="keyword">var</span> conn = users[connection.otherName]; </span><br><span class="line">            conn.otherName = <span class="literal">null</span>;</span><br><span class="line">				</span><br><span class="line">            <span class="keyword">if</span>(conn != <span class="literal">null</span>) &#123; </span><br><span class="line">               sendTo(conn, &#123; </span><br><span class="line">                  type: <span class="string">&quot;leave&quot;</span> </span><br><span class="line">               &#125;); </span><br><span class="line">            &#125;</span><br><span class="line">         &#125; </span><br><span class="line">      &#125;</span><br><span class="line">		</span><br><span class="line">   &#125;);  </span><br><span class="line">	</span><br><span class="line">   connection.send(<span class="string">&quot;Hello world&quot;</span>);  </span><br><span class="line">&#125;);</span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sendTo</span>(<span class="params">connection, message</span>) </span>&#123; </span><br><span class="line">   connection.send(<span class="built_in">JSON</span>.stringify(message)); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
 
     
     
     
-        <div class="reward-container">
-  <div></div>
-  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
-    Donate
-  </button>
-  <div id="qr" style="display: none;">
-      
-      <div style="display: inline-block;">
-        <img src="/image/qrcode.jpg" alt="Larry Tsai Alipay">
-        <p>Alipay</p>
-      </div>
 
-  </div>
-</div>
-
-
-      <footer class="post-footer">
+    <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/webrtc/" rel="tag"># webrtc</a>
-              <a href="/tags/前端/" rel="tag"># 前端</a>
+              <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a>
               <a href="/tags/node-js/" rel="tag"># node.js</a>
           </div>
 
         
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2018/02/14/bst-delete/" rel="prev" title="二叉查找树的删除操作">
-      <i class="fa fa-chevron-left"></i> 二叉查找树的删除操作
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2018/03/08/test-engineer/" rel="next" title="一个测试工程师走进一家酒吧">
-      一个测试工程师走进一家酒吧 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-  </div>
-
-
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/02/14/bst-delete/" rel="prev" title="二叉查找树的删除操作">
+                  <i class="fa fa-chevron-left"></i> 二叉查找树的删除操作
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/03/08/test-engineer/" rel="next" title="一个测试工程师走进一家酒吧">
+                  一个测试工程师走进一家酒吧 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
           </div>
-          
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
     if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
       if (activeTab) {
         activeTab.click();
       }
@@ -895,162 +473,37 @@ function sendTo(connection, message) {
   if (CONFIG.comments.storage) {
     window.addEventListener('tabs:click', event => {
       if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
+      const commentClass = event.target.classList[1];
       localStorage.setItem('comments_active', commentClass);
     });
   }
 </script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebRTC-Api"><span class="nav-number">1.</span> <span class="nav-text">WebRTC Api</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#PeerConnection"><span class="nav-number">1.0.1.</span> <span class="nav-text">PeerConnection</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RTCSessionDescription"><span class="nav-number">1.0.2.</span> <span class="nav-text">RTCSessionDescription</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Peer-to-Peer-Connection-通信过程"><span class="nav-number">2.</span> <span class="nav-text">Peer to Peer Connection 通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全部代码"><span class="nav-number">3.</span> <span class="nav-text">全部代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#websocket代码："><span class="nav-number">4.</span> <span class="nav-text">websocket代码：</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Larry Tsai</p>
-  <div class="site-description" itemprop="description">Code and Photos</div>
 </div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives">
-          <span class="site-state-item-count">27</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-          
-        <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">categories</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">23</span>
-        <span class="site-state-item-name">tags</span></a>
-      </div>
-  </nav>
-</div>
-  <div class="links-of-author motion-element">
-      <span class="links-of-author-item">
-        <a href="https://github.com/nigthsnack" title="GitHub → https://github.com/nigthsnack" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="https://weibo.com/nightsnackcai" title="Weibo → https://weibo.com/nightsnackcai" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="https://www.instagram.com/nightsnack_" title="Instagram → https://www.instagram.com/nightsnack_" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
-      </span>
-  </div>
+  </main>
 
+  <footer class="footer">
+    <div class="footer-inner">
 
-
-      </div>
-
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
 
 <div class="copyright">
-  
   &copy; 2017 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
-    <i class="fa fa-Larry"></i>
+    <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Larry Tsai</span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
 </div>
-
-        
-<div class="busuanzi-count">
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="Total Visitors">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="Total Views">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
   </div>
 
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
-<script src="/js/schemes/pisces.js"></script>
-<script src="/js/next-boot.js"></script>
-
-
+    </div>
+  </footer>
 
   
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
 
-
-
-
-  <script src="/js/local-search.js"></script>
-
-
-
-
-
+  
 
 
 
@@ -1060,57 +513,12 @@ function sendTo(connection, message) {
 
   
 
-  
-      
-<script type="text/x-mathjax-config">
 
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
-      processEscapes: true,
-      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    TeX: {
-      equationNumbers: {
-        autoNumber: 'AMS'
-      }
-    }
-  });
 
-  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
-    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
-      if (data.display) {
-        var next = data.script.nextSibling;
-        while (next && next.nodeName.toLowerCase() === '#text') {
-          next = next.nextSibling;
-        }
-        if (next && next.nodeName.toLowerCase() === 'br') {
-          next.parentNode.removeChild(next);
-        }
-      }
-    });
-  });
 
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for (i = 0; i < all.length; i += 1) {
-      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
-      if (element.nodeName.toLowerCase() == 'li') {
-        element = element.parentNode;
-      }
-      element.classList.add('has-jax');
-    }
-  });
-</script>
-<script>
-  NexT.utils.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', () => {
-    MathJax.Hub.Typeset();
-  }, window.MathJax);
-</script>
-
-    
 
   
+
 
 </body>
 </html>
