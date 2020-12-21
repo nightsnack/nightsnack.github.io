@@ -7,12 +7,12 @@
 <meta name="generator" content="Hexo 5.3.0">
 
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/about/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/about/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/about/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/about/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-<link rel="stylesheet" href="/about/css/main.css">
+<link rel="stylesheet" href="/css/main.css">
 
 
 
@@ -20,12 +20,12 @@
 
 <script class="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"nightsnack.github.io","root":"/about/","images":"/about/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+    var CONFIG = {"hostname":"nightsnack.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
 <meta name="description" content="为什么要引入最大后验？ 最大似然估计仅仅是求得似然函数的极值点，考虑到实验结果数量较少，有的时候仅靠最大似然估计不足以求得较为准确参数估计值。 拿这枚硬币抛了10次，得到的数据（\(x_0\)）是：反正正正正反正正正反。我们想求的正面概率θθ是模型参数，而抛硬币模型我们可以假设是 二项分布。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MAP最大后验估计">
-<meta property="og:url" content="https://nightsnack.github.io/about/2019/10/05/map/index.html">
+<meta property="og:url" content="https://nightsnack.github.io/2019/10/05/map/index.html">
 <meta property="og:site_name" content="Yuxuan Cai - Personal Blog">
 <meta property="og:description" content="为什么要引入最大后验？ 最大似然估计仅仅是求得似然函数的极值点，考虑到实验结果数量较少，有的时候仅靠最大似然估计不足以求得较为准确参数估计值。 拿这枚硬币抛了10次，得到的数据（\(x_0\)）是：反正正正正反正正正反。我们想求的正面概率θθ是模型参数，而抛硬币模型我们可以假设是 二项分布。">
 <meta property="og:locale" content="en_US">
@@ -45,7 +45,7 @@
 <meta name="twitter:image" content="https://tva1.sinaimg.cn/large/006tNbRwly1galj8v8jn8j31bk0qomyt.jpg">
 
 
-<link rel="canonical" href="https://nightsnack.github.io/about/2019/10/05/map/">
+<link rel="canonical" href="https://nightsnack.github.io/2019/10/05/map/">
 
 
 <script class="page-configurations">
@@ -115,7 +115,7 @@
 
   <div class="site-meta">
 
-    <a href="/about/" class="brand" rel="start">
+    <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
       <h1 class="site-title">Yuxuan Cai - Personal Blog</h1>
       <i class="logo-line"></i>
@@ -135,27 +135,27 @@
   <ul class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/about/about/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fas fa fa-home fa-fw"></i>Home</a>
 
   </li>
         <li class="menu-item menu-item-blog">
 
-    <a href="/about/" rel="section"><i class="fas fa-blog fa-fw"></i>Blog</a>
+    <a href="/about/" rel="section"><i class="fa fa-blog fa-fw"></i>Blog</a>
 
   </li>
         <li class="menu-item menu-item-publications">
 
-    <a href="/about/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
+    <a href="/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
 
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/about/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
 
   </li>
         <li class="menu-item menu-item-resume">
 
-    <a href="/about/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
+    <a href="/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
 
   </li>
   </ul>
@@ -194,25 +194,25 @@
         <section class="site-overview-wrap sidebar-panel">
           <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <img class="site-author-image" itemprop="image" alt="Yuxuan Cai"
-      src="/about/image/avatar.png">
+      src="/image/avatar.png">
   <p class="site-author-name" itemprop="name">Yuxuan Cai</p>
   <div class="site-description" itemprop="description">Publications and Resume</div>
 </div>
 <div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
-          <a href="/about/archives">
+          <a href="/archives">
           <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-            <a href="/about/categories/">
+            <a href="/categories/">
         <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-            <a href="/about/tags/">
+            <a href="/tags/">
         <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
@@ -271,10 +271,10 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/about/2019/10/05/map/">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2019/10/05/map/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/about/image/avatar.png">
+      <meta itemprop="image" content="/image/avatar.png">
       <meta itemprop="name" content="Yuxuan Cai">
       <meta itemprop="description" content="Publications and Resume">
     </span>
@@ -310,7 +310,7 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/about/categories/%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">知识</span></a>
+          <a href="/categories/%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">知识</span></a>
         </span>
     </span>
 
@@ -404,19 +404,19 @@ f(x_0,\theta) &amp;= (1−\theta)\times\theta\times\theta×\theta×\theta×(1−
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/about/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/about/2019/09/28/maxlikelyhood/" rel="prev" title="最大似然估计">
+                <a href="/2019/09/28/maxlikelyhood/" rel="prev" title="最大似然估计">
                   <i class="fa fa-chevron-left"></i> 最大似然估计
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/about/2019/10/17/embasic/" rel="next" title="EM 算法的基本步骤">
+                <a href="/2019/10/17/embasic/" rel="next" title="EM 算法的基本步骤">
                   EM 算法的基本步骤 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
@@ -475,7 +475,7 @@ f(x_0,\theta) &amp;= (1−\theta)\times\theta\times\theta×\theta×\theta×(1−
 
   
   <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
-<script src="/about/js/utils.js"></script><script src="/about/js/next-boot.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
 
   
 
