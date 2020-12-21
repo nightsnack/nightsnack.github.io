@@ -6,6 +6,7 @@ tags:
 ---
 
 理解RESTful的幂等性，并且设计符合幂等规范的高质量RESTful API。
+<!-- more -->
 
 ## 怎么理解HTTP请求GET/POST/PUT/DELETE的幂等性
 

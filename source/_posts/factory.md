@@ -7,10 +7,11 @@ tags:
 ---
 
 ## 关于工厂模式的总结
+<!-- more -->
 
 ### 1.简单工厂
 
-1. ![](https://ws3.sinaimg.cn/large/006tKfTcgy1fo5dyyqc67j30n60crwih.jpg)
+1. ![](/image/简单工厂.jpg)
 
 2. 角色：
 
@@ -50,7 +51,7 @@ tags:
 
 ### 2.工厂方法
 
-![](https://ws1.sinaimg.cn/large/006tKfTcgy1fo5dyywf6uj30os0a976y.jpg)
+![](/image/工厂方法.jpg)
 
 1. 与简单工厂的差别：工厂方法模式最重要的区别是引入了抽象工厂角色，抽象工厂可以是接口，也可以是抽象类或者具体类
 2. 客户端先实例化具体工厂，由具体工厂再实例化具体产品。
@@ -74,9 +75,9 @@ tags:
 
 抽象工厂模式为创建一组对象提供了一种解决方案。与工厂方法模式相比，抽象工厂模式中的具体工厂不只是创建一种产品，它负责创建一族产品。
 
-![cxgc1](https://ws2.sinaimg.cn/large/006tKfTcgy1fo5dyz9r1wj30dm06sjru.jpg)
+![cxgc1](/image/抽象工厂1.jpg)
 
-![](https://ws4.sinaimg.cn/large/006tKfTcgy1fo5dyz2spbj30qc0g8dl6.jpg)
+![](/image/抽象工厂2.jpg)
 
 1. 开闭原则的倾斜性：开闭原则的倾斜性：
 

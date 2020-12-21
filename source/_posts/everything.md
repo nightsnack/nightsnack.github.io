@@ -5,6 +5,7 @@ tags:
 ---
 
 ## Spring的传播特性
+<!-- more -->
 
 1. **PROPAGATION_REQUIRED（加入已有事务）**
    尝试加入已经存在的事务中，如果没有则开启一个新的事务。

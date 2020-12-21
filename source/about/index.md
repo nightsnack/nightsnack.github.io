@@ -1,70 +1,46 @@
 ---
-title: About Me
-date: 2016-12-27 14:30:23
+title: Yuxuan Cai - Northeastern University
+date: 2017-12-27 14:30:23
+permalink: index.html
 ---
 
-### Who am I? 
+<!-- ## Intro -->
+<img src='/image/psimg.jpg' align='left' style=' width:300px; padding-right: 65px; padding-left: 25px; padding-top: 15px; padding-bottom: 15px;'/>
 
-- I am Larry, but most of my friends call me, Nightsnack. 
-  > 大家都叫我夜宵，全名是吃夜宵
-- Graduate from NUPT & UNSW Australia.  
-  > 南京邮电大学/澳大利亚新南威尔士大学校友 
-- Getty Images (CN) Contract Photographer & Programmer
-  > 业余摄影师 
-- Rooftopper
-  > U don't need to know that.
+**Yuxuan Cai** graduated from Northeastern University in 2021 with a master degree in Computer Engineering, supervised by [Professor Yanzhi Wang](https://web.northeastern.edu/yanzhiwang/).
+His work has been published in some high-impact conferences **(AAAI, NIPS, ASP-DAC)**.
 
+
+**His research interests include:**
+
+  - Computer Vision
+  - Object Detection
+  - Model Compression
+  - Network Architecture Search
+
+Useful links: [Google Scholar](https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en), [dblp](https://dblp.org/pid/209/5515.html), [CoCoPIE](https://www.cocopie.ai/) real-time AI optimization framework: [Youtube Channel](https://www.youtube.com/channel/UCCKVDtg2eheRTEuqIJ5cD8A), [bilibili Channel](https://space.bilibili.com/573588276?from=search&seid=11881710196887435131).
 ​ 
-### Wanna Find Me ? 
 
-- **qq/wechat:** MWU4OGU0MDM4NTMyNzgxYmNjYmM0NTBlOWMzZmFkYmU=
-  本人拒不提供各种类型的陪聊服务，已嫁，勿撩
-- **weibo:** @吃夜宵
-- **Instagram:** nightsnackc_
-- **email:** chiyexiao@icloud.com 
-  9:30 everyday
-- **Wechat Offical Account Platform:** 吃夜宵
+### Contact Me
 
-​  
-###  Story 情怀
+- **E-mail:** [nightsnackc@gmail.com ](mailto:nightsnackc@gmail.com )
+- **Github:** [https://www.github.com/nightsnack/](https://www.github.com/nightsnack/)
 
-* 网易云音乐深度使用患者。
-* 我很穷，请不要在我面前提摄影器材，如有兴趣轻关注下方支付宝二维码。
-* 爬楼党
 
-​  
-### Want to know me? 下面这些摘自2017年度总结
+## Publications
+### Conference publications
+- **Yuxuan Cai**, Hongjia Li, Geng Yuan, Wei Niu, Yanyu Li, Xulong Tang, Bin Ren, and Yanzhi Wang, [“YOLObile: Real-Time Object Detection on Mobile Devices via Compression-Compilation Co-Design“](https://arxiv.org/abs/2009.05697), to appear in **AAAI, 2021**. (Acceptance Rate: 20.9%)
 
-> 斜阳草树，寻常巷陌，人道寄奴曾住
->
-> 想当年，金戈铁马
->
-> 气吞万里如虎
->
-> 
->
-> 再见2017
->
-> 再见那些翘首期盼的日子
->
-> 再见那些迷惘着的日子
->
-> 
->
-> 生活就是那么真实，少部分的戏剧化并不能掩盖大部分时候的它其实是平凡的。
->
-> 承认生活的平凡，挖掘它的闪光点，带着自己的执念去观察感知。
->
-> 放下拿着相机时怀揣着的幻觉般的英雄主义，拿起相机时又心平气和地把它当做一个老伙伴。
->
-> 在镜头前出现的戏剧，或者日常琐碎，按下快门的一瞬间，它们都成了你生活的一个片段，你对生活这首长诗的吟诵。 
->
-> 所以我一直觉得我还不懂摄影，还不懂怎么活好自己，还不了解生活，也不知道未来会在哪里。
->
-> 依旧看不懂什么是好，但我知道什么是不好。
+- Geng Yuan, Payman Behnam, **Yuxuan Cai**, Ali Shafiee, Jingyan Fu, Zhiheng Liao, Zhengang Li, Xiaolong Ma, Jieren Deng, Jinhui Wang, Mahdi Bojnordi, Yanzhi Wang, and Caiwen Ding, "TinyADC: Peripheral Circuit-aware Weight Pruning Framework for Mixed-signal DNN Accelerators," 27'th Annual Design, Automation, and Test in Europe Conference **(DATE), 2021**
 
-  ​
+- **Yuxuan Cai**, Geng Yuan, Hongjia Li, Wei Niu, Yanyu Li, Xulong Tang, Bin Ren, and Yanzhi Wang, “A Compression-Compilation Co-Design Framework Towards Real-Time Object Detection on Mobile Devices”, to appear in **AAAI, 2021 (Demonstration Paper)**.
 
-### Donate
 
-![](https://ws3.sinaimg.cn/large/006tKfTcgy1fo5ldzlm3kj30go0p040o.jpg)
+- Hongjia Li, Geng Yuan, Wei Niu, **Yuxuan Cai**, Mengshu Sun, Bin Ren, Xue Lin, and Yanzhi Wang, “Real-Time Mobile Acceleration of DNNs: From Computer Vision to Medical Applications”, in **ASP-DAC, 2021**
+
+### Arxiv
+<!-- Pu Zhao, Wei Niu, Geng Yuan, Yuxuan Cai, Hsin-Hsuan Sung, Wujie Wen, Sijia Liu, Xipeng Shen, Bin Ren, Yanzhi Wang, Xue Lin, “A Unified Reinforcement Learning Framework of Network Enhancement and Pruning Search for Real-Time 3D Object Detection on the Edge” -->
+- Zhengang Li, Geng Yuan, Wei Niu, Yanyu Li, Pu Zhao, **Yuxuan Cai**, Xuan Shen, Zheng Zhan, Zhenglun Kong, Qing Jin, Bin Ren, Yanzhi Wang, Xue Lin, ["6.7 ms on Mobile with over 78% ImageNet Accuracy: Unified Network Pruning and Architecture Search for Beyond Real-Time Mobile Acceleration”](https://arxiv.org/pdf/2012.00596.pdf)
+
+### Workshop publications
+- **Yuxuan Cai**, Geng Yuan, Hongjia Li, Wei Niu, Yanyu Li, Xulong Tang, Bin Ren, and Yanzhi Wang, “YOLObile: Real-Time Object Detection on Mobile Devices via Compression-Compilation Co-Design”, in **NeurIPS 2020 Workshop on Machine Learning for Autonomous Driving**.

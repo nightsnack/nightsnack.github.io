@@ -7,3 +7,6 @@ tags:
 
 
 <http://www.cs.sfu.ca/~pingtan/Papers/cvpr14_stabilization.pdf>
+
+
+<!-- more -->

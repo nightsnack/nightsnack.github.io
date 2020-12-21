@@ -14,6 +14,8 @@ tags:
 在ArrayList,LinkedList,HashMap等等的内部实现增，删，改中我们总能看到modCount的身影，modCount字面意思就是修改次数，但为什么要记录modCount的修改次数呢？ 
 大家发现一个公共特点没有，所有使用modCount属性的全是线程不安全的，这是为什么呢？说明这个玩意肯定和线程安全有关系喽，那有什么关系呢
 
+<!-- more -->
+
 阅读源码，发现这玩意只有在本数据结构对应迭代器中才使用,以HashMap为例：
 
 

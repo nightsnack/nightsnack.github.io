@@ -12,6 +12,9 @@ tags:
 ##### PeerConnection
 
 WebRTC中最主要的就是一个叫做`PeerConnection`的对象，这个是WebRTC中已经封装好的对象。每一路的音视频会话都会有唯一的一个`PeerConnection`对象，WebRTC通过这个`PeerConnection`对象进行视频的发起、传输、接收和挂断等操作。
+
+<!-- more -->
+
 PeerConnection中包含的属性如下：
 
 - localDescription：本地描述信息，类型：`RTCSessionDescription`

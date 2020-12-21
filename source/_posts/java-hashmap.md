@@ -7,6 +7,7 @@ tags:
 ---
 
 ##  Java HashMap 源码学习笔记
+<!-- more -->
 
 map子类中的hashmap，源码学习记录。部分是翻译还有一些是自己的记录。
 
@@ -324,6 +325,18 @@ bucket是一个list，每个元素是一个节点，用于开散列法解决冲�
 
 ![](https://ws3.sinaimg.cn/large/006tKfTcgy1fo7q9z8yzsj319c0ce761.jpg)
 
+
+
+元素在重新计算hash之后，因为n变为2倍，那么n-1的mask范围在高位多1bit(红色)，因此新的index就会发生这样的变化：
+
+![b2cb057773e3d67976c535d6ef547d51_hd](https://ws3.sinaimg.cn/large/006tKfTcly1g0l59m14g8j30k003taao.jpg)
+
+因此，我们在扩充HashMap的时候，不需要像JDK1.7的实现那样重新计算hash，只需要看看原来的hash值新增的那个bit是1还是0就好了，是0的话索引没变，是1的话索引变成“原索引+oldCap”，可以看看下图为16扩充为32的resize示意图：
+
+
+
+![544caeb82a329fa49cc99842818ed1ba_hd](https://ws4.sinaimg.cn/large/006tKfTcly1g0l58u0adjj30k00bjjtk.jpg)</u>
+
 ```java
 	/**
      * Initializes or doubles table size.  If null, allocates in
@@ -519,20 +532,18 @@ public class HashMapInfiniteLoop {
 其中，map初始化为一个长度为2的数组，loadFactor=0.75，threshold=2*0.75=1，也就是说当put第二个key的时候，map就需要进行resize。
 
 通过设置断点让线程1和线程2同时debug到transfer方法(3.3小节代码块)的首行。注意此时两个线程已经成功添加数据。放开thread1的断点至transfer方法的“Entry next = e.next;” 这一行；然后放开线程2的的断点，让线程2进行resize。结果如下图。
+![jdk1.7 hashMap死循环例图1](https://ws2.sinaimg.cn/large/006tKfTcly1g0l53xl5zbj30k0092757.jpg)
 
-![jdk1.7 hashMap死循环例图1](https://tech.meituan.com/img/java-hashmap/jdk1.7%20hashMap%E6%AD%BB%E5%BE%AA%E7%8E%AF%E4%BE%8B%E5%9B%BE1.png)
 
 注意，Thread1的 e 指向了key(3)，而next指向了key(7)，其在线程二rehash后，指向了线程二重组后的链表。
 
 线程一被调度回来执行，先是执行 newTalbe[i] = e， 然后是e = next，导致了e指向了key(7)，而下一次循环的next = e.next导致了next指向了key(3)。
 
-![jdk1.7 hashMap死循环例图2](https://tech.meituan.com/img/java-hashmap/jdk1.7%20hashMap%E6%AD%BB%E5%BE%AA%E7%8E%AF%E4%BE%8B%E5%9B%BE2.png)
-
-![jdk1.7 hashMap死循环例图3](https://tech.meituan.com/img/java-hashmap/jdk1.7%20hashMap%E6%AD%BB%E5%BE%AA%E7%8E%AF%E4%BE%8B%E5%9B%BE3.png)
+![jdk1.7 hashMap死循环例图2](https://ws2.sinaimg.cn/large/006tKfTcly1g0l54uk4i4j30k007k0t2.jpg)
 
 e.next = newTable[i] 导致 key(3).next 指向了 key(7)。注意：此时的key(7).next 已经指向了key(3)， 环形链表就这样出现了。
+![5f3cf5300f041c771a736b40590fd7b1_hd](https://ws4.sinaimg.cn/large/006tKfTcly1g0l57eeta1j30k006zwf4.jpg)
 
-![jdk1.7 hashMap死循环例图4](https://tech.meituan.com/img/java-hashmap/jdk1.7%20hashMap%E6%AD%BB%E5%BE%AA%E7%8E%AF%E4%BE%8B%E5%9B%BE4.png)
 
 于是，当我们用线程一调用map.get(11)时，悲剧就出现了——Infinite Loop。
 
