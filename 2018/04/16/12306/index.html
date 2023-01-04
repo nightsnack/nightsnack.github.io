@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"nightsnack.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="PostgreSQL 与 12306 抢火车票的思考 (转载) 转自：https:&#x2F;&#x2F;github.com&#x2F;digoal&#x2F;blog&#x2F;blob&#x2F;master&#x2F;201611&#x2F;20161124_02.md">
+<meta property="og:type" content="article">
+<meta property="og:title" content="12306">
+<meta property="og:url" content="https://nightsnack.github.io/2018/04/16/12306/index.html">
+<meta property="og:site_name" content="Yuxuan Cai - Personal Blog">
+<meta property="og:description" content="PostgreSQL 与 12306 抢火车票的思考 (转载) 转自：https:&#x2F;&#x2F;github.com&#x2F;digoal&#x2F;blog&#x2F;blob&#x2F;master&#x2F;201611&#x2F;20161124_02.md">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://nightsnack.github.io/2018/04/16/12306/20161124_02_pic_004.png">
+<meta property="og:image" content="https://nightsnack.github.io/2018/04/16/12306/20161124_02_pic_001.png">
+<meta property="og:image" content="https://nightsnack.github.io/2018/04/16/12306/20161124_02_pic_002.png">
+<meta property="og:image" content="https://nightsnack.github.io/2018/04/16/12306/20161124_02_pic_003.gif">
+<meta property="og:image" content="http://s03.flagcounter.com/count/h9V1/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_12/viewers_0/labels_0/pageviews_0/flags_0/">
+<meta property="article:published_time" content="2018-04-16T08:43:54.000Z">
+<meta property="article:modified_time" content="2022-12-27T06:31:57.422Z">
+<meta property="article:author" content="Yuxuan Cai">
+<meta property="article:tag" content="12306">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://nightsnack.github.io/2018/04/16/12306/20161124_02_pic_004.png">
+
+
+<link rel="canonical" href="https://nightsnack.github.io/2018/04/16/12306/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>12306 | Yuxuan Cai - Personal Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Yuxuan Cai - Personal Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Yuxuan Cai</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fas fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-blog">
+
+    <a href="/about/" rel="section"><i class="fa fa-blog fa-fw"></i>Blog</a>
+
+  </li>
+        <li class="menu-item menu-item-publications">
+
+    <a href="/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-resume">
+
+    <a href="/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuxuan Cai"
+      src="/image/avatar.png">
+  <p class="site-author-name" itemprop="name">Yuxuan Cai</p>
+  <div class="site-description" itemprop="description">Publications and Resume</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nightsnack" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nightsnack" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/yuxuan-cai-4a1833109" title="LinkedIn → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;yuxuan-cai-4a1833109" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>LinkedIn</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://dblp.org/pid/209/5515.html" title="dblp → https:&#x2F;&#x2F;dblp.org&#x2F;pid&#x2F;209&#x2F;5515.html" rel="noopener" target="_blank"><i class="fas fa-file-code fa-fw"></i>dblp</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/nightsnack" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2018/04/16/12306/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/avatar.png">
+      <meta itemprop="name" content="Yuxuan Cai">
+      <meta itemprop="description" content="Publications and Resume">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yuxuan Cai - Personal Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          12306
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-04-16 16:43:54" itemprop="dateCreated datePublished" datetime="2018-04-16T16:43:54+08:00">2018-04-16</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2022-12-27 14:31:57" itemprop="dateModified" datetime="2022-12-27T14:31:57+08:00">2022-12-27</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="postgresql-与-12306-抢火车票的思考-转载">PostgreSQL 与 12306
+抢火车票的思考 (转载)</h2>
+<p>转自：https://github.com/digoal/blog/blob/master/201611/20161124_02.md
+<a id="more"></a> ## 背景</p>
+<p>马上春节了，又到了火车票的销售旺季，一票难求的问题依旧存在吗？</p>
+<p>还记得10年前春节前买火车票得在放票前1天搬个小板凳去排队，对于热门路线，排一个晚上都有可能买不到票。</p>
+<p>随着互联网的发展，几年前建设了12306网上购票系统，可以从电脑上买票，但是不要以为在电脑上就能买到票。</p>
+<p>我记得12306刚推出时，经常发生12306网站打不开，或者无法付款的问题。</p>
+<p>为什么呢？</p>
+<p>原因很简单，春节期间网上购票的人可能达到几亿的级别，而且放票日期是同一天同一个时间点，也就是说同一时刻12306要接受几亿用户的访问。</p>
+<p>处理能力和实际的访问需求更不上，带来的结果就是网站打不开，系统不稳定的现象。</p>
+<figure>
+<img src="20161124_02_pic_004.png" alt="pic" />
+<figcaption aria-hidden="true">pic</figcaption>
+</figure>
+<p>后来12306想了分线路分时段开启的办法，想办法把不同线路的用户错开时间来访问12306的网站，但是这个方法起初的效果不明显，并不是所有用户都知道的（就好像你临时通知今天不上班，但还是有用户会来单位的），所以大多数用户还是集中在一个点去访问12306的网站。</p>
+<p>随着硬件的发展，技术的演进，12306的系统越来越趋于成熟，稳定性和响应速度也越来越好。</p>
+<p>据说现在很多商家还开通了云抢票业务，本质上是让你不要冲击12306系统了，把需求提前收集，在放票时，这些系统会进行排队与合并购买，这种手段可以减少12306的访问并发。</p>
+<p>抢火车票是很有意思的一个课题，对IT人的智商以及IT系统的健壮性，尤其是数据库的功能和性能都是一种挑战。</p>
+<p>接下来我们一起来缕一缕有哪些难点，又有怎样的解决手段。</p>
+<h2 id="一扒一扒熟悉的铁路售票系统">一、扒一扒熟悉的铁路售票系统</h2>
+<p>铁路售票系统最基本的功能包括</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">查询余票、余票统计、购票、车次变化、退票、改签、中转乘车规划 等。     </span><br></pre></td></tr></table></figure>
+<p>每个需求都有各自的特点，例如</p>
+<p>1.
+查询余票，用户在购票前通常会查一下到达目的地有哪些余票，它属于一个高并发的操作，同时需要统计余票张数，需要很强的CPU来支撑实时的查询。</p>
+<p>2.
+购票，购票和查询不一样，购票是会改变库存的，所以对数据库来说是更新的操作。</p>
+<p>而且购票很可能发生冲突，例如很多人要买同一趟车的票，那就出现冲突了，到底卖给谁呢？</p>
+<p>需要考虑锁冲突，尽量的让不同的人购买时可并行，或者可以合并多人的购票请求，来减少数据库的更新操作。</p>
+<p>3.
+中转乘车，当用户需要购买的起点和到达站无票时，需要计算中转的搭乘方案。</p>
+<p>比如从北京到上海，如果没有直达车，是不是该转车呢？转哪趟，在哪里转就成了问题，简单一点就是买票的人自己想。</p>
+<p>高级一点的话，可以让12306给你推荐路线，这个涉及的是数据库的路径规划功能。</p>
+<p>我们来逐一分析一下这些需求的特点。</p>
+<h3 id="查询余票">1 查询余票</h3>
+<p>1. 普通的余票查询需求</p>
+<p>你如果要买从北京到上海的火车票，通常会查一下哪些车次还有余票。</p>
+<p>查询的过滤条件可能很多，比如</p>
+<p>1.1. 上车站、下车站、中转站</p>
+<p>1.2. 车次类型（高铁、动车、直达、快速、普客、...）</p>
+<p>1.3. 出发日期、时段</p>
+<p>1.4. 到达日期、时段</p>
+<p>1.5. 席别（硬座、硬卧、...站票）</p>
+<p>1.6. 过滤掉没有余票的车次</p>
+<p>展示给用时还要考虑到怎么排序（是按始发时间排呢，还是按票价，或者按余票数量排？），怎么分页。</p>
+<figure>
+<img src="20161124_02_pic_001.png" alt="pic" />
+<figcaption aria-hidden="true">pic</figcaption>
+</figure>
+<p><strong>眼见不一定为实</strong></p>
+<p>查询余票通常不是实时的、或者说不一定是准确的，有可能是后台异步统计的结果。</p>
+<p>即使是实时统计的结果，在高并发的抢票期间，你看到的信息对你来说也许很快就会失效。</p>
+<p>比如你看到某趟车还有100张票，很可能等你付款的时候，已经卖光了。</p>
+<p>所以在高峰期，余票信息的参考价值并不大，不要被迷惑了。</p>
+<p>2. 查询余票的另一个更高级的需求是路径规划,
+自动适配(根据用户输入的中转站点s)</p>
+<p>这个功能以前可能没有，但是总有一天会暴露出来，特别是车票很紧张的情况下。</p>
+<p>就比如从北京到上海，直达的没有了，系统可以帮你看看转一趟车的，转2趟车的，转N趟车的。（当然，转的越多越复杂）。</p>
+<p>从中转这个角度来讲，实际上已经扯上路径规划的技术了。</p>
+<p>怎么中转是时间最短的、价格最低的、中转次数最少的等等。（里面还涉及转车的输入要求（比如用户要求在一线城市转车，或者必须要转高铁））。</p>
+<p>关于路径规划，可以参考一下PostgreSQL
+pgrouting，已支持多种路径规划算法，支持算法的自定义扩展。</p>
+<p>简直是居家旅行，杀人灭口的必备良药。</p>
+<p><a href="../201607/20160710_01.md">《聊一聊双十一背后的技术 - 物流,
+动态路径规划》</a></p>
+<h4 id="设计痛点">设计痛点</h4>
+<p>1.
+大多数用户是有选择综合症的，通常来说，用户可能会查询很多次，才选到合适日期的合适车次的票。</p>
+<p>查询量比较大，春节期间更甚。</p>
+<p>2. 为了展示余票数量，需要统计，会耗费较多的CPU, IO资源。</p>
+<p>3.
+路径规划，帮用户选择最佳的转车路线，很考验数据库的功能，大多数数据库没有这个功能。</p>
+<h3 id="余票统计">2 余票统计</h3>
+<p>对于售票系统来说，查询余票实际上是一个统计操作。</p>
+<p>统计操作相比简单查询，不但消耗更多的IO还消耗更多的CPU资源。</p>
+<p>想像一下几亿人（其实不用这么多，可能几十万就够了）来查询余票，即使机器没挂掉，也会把所有机器的资源跑满，CPU产生的热量，可能几分钟就能把鸡蛋煮熟咯。</p>
+<p>为了减少实时查询余票的开销，通常会分时进行统计，更新最新的统计信息。</p>
+<p>用户查询余票信息时，查到的是统计后的结果，前面我已经分析过了，余票是不可信的，所以存在一定的延迟其实也是允许的。</p>
+<p>这下不能煮鸡蛋了，因为把几亿个统计请求，变成了1个统计请求，是不是一下子世界就冷静了呢？</p>
+<p>我们可以看到12306主页的余票大盘数据</p>
+<figure>
+<img src="20161124_02_pic_002.png" alt="pic" />
+<figcaption aria-hidden="true">pic</figcaption>
+</figure>
+<h4 id="设计痛点-1">设计痛点</h4>
+<p>1. 余票信息需要统计，查询会耗费较多的CPU,IO。</p>
+<p>由于余票是不可信的，所以存在一定的延迟其实也是允许的，优化手段是异步统计，用户查询统计后的结果。</p>
+<h3 id="购票">3 购票</h3>
+<p>购票相对于查询余票来说，从请求量来分析，比查询请求更少，因为通常来说，用户可能会查询很多次，才选到合适日期的合适车次的票。</p>
+<p>但是由于购票是一次交易，每次交易都会产生写操作，而且这种交易并不是无限库存的交易，因为库存是有限的，所以设计的关键是降低粒度，减少锁冲突，减少数据扫描量。</p>
+<p>另外还需要考虑的因素包括</p>
+<p>1. 同一趟车次的同一个座位，在不同的维度可能会被多次售卖</p>
+<p>1.1 时间维度，如发车日期</p>
+<p>1.2 空间维度，不同的起始站点</p>
+<p>2. 票价</p>
+<p>票价一般和席别绑定，按区间计费。</p>
+<p>另一个需求是尽量的将票卖出去，减少空洞座位。</p>
+<p>打个比方，从北京到上海的车，中间经过（天津、徐州、南京、无锡、苏州），如果天津到南京段有人买了，剩下的没有被购买的段应该还可以继续被购买。</p>
+<p>如果一趟从北京到上海的车，所有的票都被苏州到上海的用户买了，其他的位置没有卖出，铁大哥是不是要哭晕在厕所。</p>
+<p>又或者某趟车大量的座位被中途上车的用户买了，是不是可以买到全程的票数就少了。</p>
+<p>以前就存在这种情况，对铁大哥的成本是个不小的考验。</p>
+<h4 id="设计痛点-2">设计痛点</h4>
+<p>1.
+为了减少购票系统的写锁冲突，例如同一个座位，尽量不出现因为一个会话在更新它，其他会话需要等待的情况。</p>
+<p>（比如A用户买了北京到天津的，B用户买了天津到上海的同一趟车的同一个座位，那么应该设计合理的合并操作（如数据库内核改进）或者从设计上避免锁等待）</p>
+<p>其实就是把座位的空间维度（从哪里到哪里）、本身的属性（座位号）、时间维度（发车日期）进行解耦，放到多条记录中，从而在购买时，可以同时进行。</p>
+<p>因为数据库中最小的锁目前是行锁（单行记录同一时刻只允许一个会话进行更新，其他的被堵塞，等待释放锁），也许随着技术的发展，会演变成列锁，或者列里面的元素锁（比如数组，JSON）。</p>
+<h3 id="车次新增删除变更">4 车次新增、删除、变更</h3>
+<p>春节来临时、通常需要对某些热门线路增加车次。</p>
+<p>及车次的新增、删除和变更需求。</p>
+<p>在设计数据库时，应该考虑到这一点。</p>
+<h4 id="设计痛点-3">设计痛点</h4>
+<p>车次的变更简直是牵一发而动全身，比如余票统计会跟着变化，查询系统也要跟着变化。</p>
+<p>还有初始化信息的准备，例如为了加快购票的速度，可能会将车次的数据提前准备好（也许是每个座位一条记录），参考第3个需求的解说。</p>
+<h3 id="对账需求">5 对账需求</h3>
+<p>票可能是经过很多渠道卖出去的，例如支付宝、去哪儿、携程、铁老大的售票窗口、银行的代理窗口、客运机构
+等等。</p>
+<p>涉及到实际的销售信息与资金往来的对账需求。</p>
+<p>通常这个操作是隔天延迟对账的。</p>
+<h3 id="退票改签需求">6 退票、改签需求</h3>
+<p>退票和改签也是比较常见的需求，特别是现在APP流行起来，退改签都很方便。</p>
+<p>这就导致了用户可能会先买好一些，特别是春节期间，用户无法预先知道什么时候请假回家，所以先买几张不同日期的，到时候提前退票或者改签。</p>
+<p>改签和退票就涉及到位置回收（对数据库来说也许是更新数据），改签还涉及购票同样的流程。</p>
+<h4 id="设计痛点-4">设计痛点</h4>
+<p>与购票类似</p>
+<h3 id="取票">7 取票</h3>
+<p>这个就很简单了，就是按照用户ID，查询已购买，未打印的车票。</p>
+<h3 id="其他需求">8 其他需求</h3>
+<h4 id="票的种类">票的种类</h4>
+<p>学生票、团体票、卧铺、站票</p>
+<p>这里特别是站票，站票是有上限的，需要控制一趟车的站票人数</p>
+<p>站票同样有起点和终点，但是有些用户可能买不到终点的票，会先买一段的，然后补票或者就一直在车上不下车，下车后再补票。</p>
+<h4 id="先上车后补票">先上车后补票</h4>
+<p>这个手段极其恶劣，不过很多人都是这么干的，未婚先孕，现在的年轻人啊。。。。</p>
+<p>通常会考虑容积率，避免站票太多。</p>
+<p>如果无节制的销售站票，可能坐不下的。</p>
+<h2 id="痛点小结">痛点小结</h2>
+<p>1.
+大多数用户是有选择综合症的，通常来说，用户可能会查询很多次，才选到合适日期的合适车次的票。</p>
+<p>查询量比较大，春节期间更甚。</p>
+<p>2. 为了展示余票数量，需要统计，会耗费较多的CPU, IO资源。</p>
+<p>3.
+路径规划的需求，帮用户找出（时间最短、行程最短、指定中转站、最廉价、或者站票最少）等条件的中转搭乘路线。</p>
+<p>妈妈再也不用担心买不到票啦。</p>
+<p>4. 余票信息需要统计，查询会耗费较多的CPU,IO。</p>
+<p>由于余票是不可信的，所以存在一定的延迟其实也是允许的，优化手段是异步统计，用户查询统计后的结果。</p>
+<p>5.
+为了减少购票系统的写锁冲突，例如同一个座位，尽量不出现因为一个会话在更新它，其他会话需要等待的情况。</p>
+<p>（比如A用户买了北京到天津的，B用户买了天津到上海的同一趟车的同一个座位，那么应该设计合理的合并操作（如数据库内核改进）或者从设计上避免锁等待）</p>
+<p>其实就是把座位的空间维度（从哪里到哪里）、本身的属性（座位号）、时间维度（发车日期）进行解耦，放到多条记录中，从而在购买时，可以同时进行。</p>
+<p>因为数据库中最小的锁目前是行锁（单行记录同一时刻只允许一个会话进行更新，其他的被堵塞，等待释放锁），也许随着技术的发展，会演变成列锁，或者列里面的元素锁（比如数组，JSON）。</p>
+<p>6.
+车次的变更简直是牵一发而动全身，比如余票统计会跟着变化，查询系统也要跟着变化。</p>
+<p>还有初始化信息的准备，例如为了加快购票的速度，可能会将车次的数据提前准备好（也许是每个座位一条记录），参考第3个需求的解说。</p>
+<p>综合以上痛点和需求分析，我们在设计时应尽量避免锁等待，避免实时余票查询，同时还要避免席位空洞。</p>
+<h2 id="二猴子请来的救兵来啦">二、猴子请来的救兵来啦</h2>
+<p>经过前面的分析，已经把铁路售票系统最关键的几个业务场景进行了描述，并且阐述了其中的设计痛点，那么我们如何设计合理的系统来满足几亿人民抢票的需求呢？</p>
+<p>西游记里每一集孙悟空师父被妖怪抓走，总能找到救兵来解救。</p>
+<p>我们也需要救兵，救兵快来啊。。。。</p>
+<p>PostgreSQL是全世界最高级的开源数据库，几乎适用于任何场景。</p>
+<p>有很多特性是可以用来加快开发效率，满足架构需求的。</p>
+<p>针对铁路售票系统，可以用到哪些救命法宝呢？</p>
+<p>1. 法宝1，varbit类型</p>
+<p>使用varbit存储每趟车的每个座位途径站点是否已销售。</p>
+<p>例如
+G1921车次，从北京到上海，途径天津、徐州、南京、苏州。包括起始站，总共6个站点。
+那么使用6个比特位来表示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;000000&#x27;     </span><br></pre></td></tr></table></figure>
+<p>如果我要买从天津到徐州的，这个值变更为(下车站的BIT不需要设置)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;010000&#x27;     </span><br></pre></td></tr></table></figure>
+<p>这个位置还可以卖从北京到天津，从徐州到终点的任意站点。</p>
+<p>余票统计也很方便，对整个车次根据BIT做聚合计算即可。</p>
+<p>统计任意组合站点的余票（ 北京-天津, 北京-徐州, 北京-南京, 北京-苏州,
+北京-上海, 天津-徐州, 天津-南京, ......, 苏州-上海 ）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">udf_count(varbit) returns record    </span><br></pre></td></tr></table></figure>
+<p>统计指定起始站点的余票（start: 北京, end: 南京； 则返回的是 北京-南京
+的余票）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">udf_count(varbit, start, end) returns record    </span><br></pre></td></tr></table></figure>
+<p>以上两个需求，开发对应的聚合函数即可，其实就是一些指定范围的bitand的count操作。</p>
+<p>通过法宝1，解决了统计余票的需求、售票无空洞的需求。</p>
+<p>2. 法宝2，数组类型</p>
+<p>使用数组存储每趟车的起始站点，途经站点。</p>
+<p>使用数组来存储，好处是可以使用到数组的GIN索引，快速的检索哪些车次是可以搭乘的。</p>
+<p>例如查询从北京到南京的车次。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 车次 from 全国列车时刻表 where column_arr @&gt; array[&#x27;北京&#x27;,&#x27;南京&#x27;];  </span><br></pre></td></tr></table></figure>
+<p>这条SQL是可以走索引的，效率非常高，每秒请求几十万不是问题。</p>
+<p>法宝2解决了高并发请求查询符合条件的列车信息的需求。</p>
+<p>3. 法宝3，skip locked</p>
+<p>这个特性是跳过已被锁定的行，比如用户在购买某一趟从北京到南京的车票时，其实是一次UPDATE
+... SET BIT的操作。</p>
+<p>但是很可能其他用户也在购买，可能就会出现锁冲突，为了避免这个情况发生，可以skip
+locked，跳过锁冲突，直接找另一个座位。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">select * from table   </span><br><span class="line">  where column1=&#x27;车次号&#x27;   -- 指定车次  </span><br><span class="line">  and column2=&#x27;车次日期&#x27;   -- 指定发车日期  </span><br><span class="line">  -- and mod(pg_backend_pid(),100) = mod(pk,100)   -- 提高并发，如果有多个连接并发的在更新，可以直接分开落到不同的行，但是可能某些pID卖完了，可能会找不到票，建议不要开启这个条件  </span><br><span class="line">  and column4=&#x27;席别&#x27;  -- 指定席别  </span><br><span class="line">  and getbit(column3, 开始站点位置, 结束站点位置-1) = &#x27;0...0&#x27;  -- 获取起始位置的BIT位，要求全部为0  </span><br><span class="line">  order by column3 desc   -- 这个目的是先把已经卖了散票的的座位拿来卖，也符合铁大哥的思想，尽量把起点和重点的票卖出去，减少空洞  </span><br><span class="line">  for update  </span><br><span class="line">  skip locked  -- 跳过被锁的行，老牛逼了，不需要锁等待  </span><br><span class="line">  limit ?;     -- 要买几张票  </span><br></pre></td></tr></table></figure>
+<p>法宝3解决了一伙人来抢票时，在同一趟车的座位发生冲突的问题。</p>
+<p>4. 法宝4，cursor</p>
+<p>如果要查询大量记录，可以使用cursor，减少重复扫描。</p>
+<p>5. 法宝5，路径规划</p>
+<p>如果用户选择直达车已经无票了，可以自动计算如何转乘，根据用户的乘车站点和目的地选择最佳搭乘路线。</p>
+<p>参考一下pgrouting，与物流的动态路径规划需求一致。</p>
+<p><a href="../201607/20160710_01.md">《聊一聊双十一背后的技术 - 物流,
+动态路径规划》</a></p>
+<p>6. 法宝6，多核并行计算</p>
+<p>开源也支持多核并行计算的，在生成余票统计时，为了提高生成速度，可以将更多的CPU加入进来并行计算，快速得到余票统计。</p>
+<p>就比如你策划了一本书，已经列好了大纲，同时你找了100个作者，这100个作者可以根据你分配的工作，同时开始写作，很快就能把一本书写完。</p>
+<p>而传统的情况，一本书，只能一个作者帮你写，即使你找了100个作者，另外的99位也只能空闲，或者他们只能写其他的99本书。</p>
+<p>7. 法宝7，资源隔离</p>
+<p>PostgreSQL为进程模型，所以可以控制每个进程的资源开销，包括(CPU,IOPS,MEMORY,network)，在铁路售票系统中，查询和售票是最关键的需求，使用这种方法，可以在关键时刻保证关键业务有足够的资源，流畅运行。</p>
+<p>这个思想和双十一护航也是一样的，在双十一期间，会关掉一些不必要的业务，保证主要业务的资源，以及它们的流畅运行。</p>
+<p>8. 法宝8，分库分表</p>
+<p>铁路数据达到了海量数据的级别，很显然一台机器无法存下所有的铁路数据。</p>
+<p>那么怎么办呢？ 可以将铁路的数据进行分区存储，存到不同的主机。</p>
+<p>PostgreSQL的分库分表方案很多，例如plproxy, pgpool-II, pg-xl, pg-xc,
+citus等等.</p>
+<p>9. 法宝9，递归查询</p>
+<p>铁路有非常典型的上下文相关特性，例如一趟车途径N个站点，全国铁路组成了一个很大的铁路网。</p>
+<p>递归查询可以根据某一个节点，向上或者向下递归搜索相关的站点。</p>
+<p>比如在有哪些车可以直达北京，有哪些车可以转车到达北京，又或者查询从北京到拉萨，有哪些线路以及途经线路可以走。</p>
+<figure>
+<img src="20161124_02_pic_003.gif" alt="pic" />
+<figcaption aria-hidden="true">pic</figcaption>
+</figure>
+<p>10. 法宝10，MPP</p>
+<p>为了持续的提高12306的体验，铁大哥还有数据挖掘的需求，比如今年春节应该对哪些线路增加车次，每天的车次增加的规划，哪些线路可以减少车次也能在春节前将用户送回家。</p>
+<p>这些问题可以基于以往的运输数据进行挖掘计算，进行回答。</p>
+<p>基于PostgreSQL的MPP产品很多，例如Postgres-XL, Greenplum, Hawq,
+REDSHIFT, paraccl, 等等。</p>
+<p>使用PG可以和这些产品很好的融合，保持语法一致。</p>
+<p>降低数据分析的开发成本。</p>
+<p>猴子请来的救兵厉害吧，还有更厉害的，阿里云在PostgreSQL基础上做了很多的改进，比对对于12306的系统，就有特别的定制特性。</p>
+<h2 id="三阿里云postgresql-varbit-array增强介绍">三、阿里云PostgreSQL
+varbit, array增强介绍</h2>
+<p>在铁路购票系统中，有几个需求需要用到bit和array的特殊功能，这些特殊的功能目前社区版本没有，阿里云RDS
+PostgreSQL对此做了增强，如下。</p>
+<p>1. 余票统计</p>
+<p>统计指定bit范围=全0的计数</p>
+<p>不指定范围，查询任意组合的bit范围全=0的计数</p>
+<p>2. 购票</p>
+<p>指定bit位置过滤、取出、设置对应的bit值</p>
+<p>根据数组值取其位置下标。</p>
+<p>回顾一下我之前写的两篇文章，也是使用varbit的应用场景，有异曲同工之妙</p>
+<p><a href="../201610/20161021_01.md">《基于 阿里云 RDS PostgreSQL
+打造实时用户画像推荐系统》</a></p>
+<p><a href="20161124_01.md">《门禁广告销售系统需求剖析 与
+PostgreSQL数据库实现》</a></p>
+<p>PostgreSQL的bit, array功能已经很强大，阿里云RDS
+PostgreSQL的bitpack也是用户实际应用中的需求提炼的新功能，大伙一起来给阿里云提需求。</p>
+<p>打造属于国人的PostgreSQL吧。</p>
+<h2 id="四数据库设计伪代码">四、数据库设计(伪代码)</h2>
+<p>讲了这么多，最后提供一些伪代码，帮助大家来理解一下。</p>
+<p>1. 列车信息表 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">create table train     </span><br><span class="line">(id int primary key, --主键    </span><br><span class="line">go_date date, -- 发车日期    </span><br><span class="line">train_num name, -- 车次    </span><br><span class="line">station text[] -- 途径站点数组    </span><br><span class="line">);     </span><br></pre></td></tr></table></figure>
+<p>2. 位置信息表 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">create table train_sit     </span><br><span class="line">(id serial8 primary key, -- 主键    </span><br><span class="line">tid int references train (id), --关联列车ID    </span><br><span class="line">bno int, -- 车厢或bucket号    </span><br><span class="line">sit_level text, -- 席别  </span><br><span class="line">sit_no int,  -- 座位号  </span><br><span class="line">station_bit varbit  -- 途径站点组成的BIT位信息, 已售站点用1表示, 未售站点用0表示. 购票时设置起点和终点-1, 终点不设置   </span><br><span class="line">);    </span><br></pre></td></tr></table></figure>
+<p>3. 测试数据模型, 1趟火车, 途径14个站点.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into train values (1, &#x27;2013-01-20&#x27;, &#x27;D645&#x27;, array[&#x27;上海南&#x27;,&#x27;嘉兴&#x27;,&#x27;杭州南&#x27;,&#x27;诸暨&#x27;,&#x27;义乌&#x27;,&#x27;金华&#x27;,&#x27;衢州&#x27;,&#x27;上饶&#x27;,&#x27;鹰潭&#x27;,&#x27;新余&#x27;,&#x27;宜春&#x27;,&#x27;萍乡&#x27;,&#x27;株洲&#x27;,&#x27;长沙&#x27;]);    </span><br></pre></td></tr></table></figure>
+<p>4. 插入测试数据, 共计200W个车厢或bucket, 每个车厢98个位置.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">insert into train_sit values (id, 1, id, &#x27;一等座&#x27;, generate_series(1,98), repeat(&#x27;0&#x27;,14)::varbit) from generate_series(1,1000000) t(id);    </span><br><span class="line">insert into train_sit values (id, 1, id, &#x27;二等座&#x27;, generate_series(1,98), repeat(&#x27;0&#x27;,98)::varbit) from generate_series(1000001,2000000) t(id);    </span><br></pre></td></tr></table></figure>
+<p>5. 创建取数组中元素位置的函数 (实际生产时可以使用C实现) :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">create or replace function array_pos (a anyarray, b anyelement) returns int as $$    </span><br><span class="line">declare    </span><br><span class="line">  i int;    </span><br><span class="line">begin    </span><br><span class="line">  for i in 1..array_length(a,1) loop    </span><br><span class="line">    if b=a[i] then    </span><br><span class="line">      return i;    </span><br><span class="line">    end if;    </span><br><span class="line">    i := i+1;    </span><br><span class="line">  end loop;    </span><br><span class="line">  return null;    </span><br><span class="line">end;    </span><br><span class="line">$$ language plpgsql;    </span><br></pre></td></tr></table></figure>
+<p>6. 创建购票函数 (伪代码) :</p>
+<p>下单，更新</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">create or replace function buy     </span><br><span class="line">(    </span><br><span class="line">inout i_train_num name,     </span><br><span class="line">inout i_fstation text,     </span><br><span class="line">inout i_tstation text,    </span><br><span class="line">inout i_go_date date,    </span><br><span class="line">inout i_sits int, -- 购买多少张  </span><br><span class="line">out o_slevel text,    </span><br><span class="line">out o_bucket_no int,    </span><br><span class="line">out o_sit_no int,    </span><br><span class="line">out o_order_status boolean    </span><br><span class="line">)     </span><br><span class="line">declare  </span><br><span class="line">  vid int[];  </span><br><span class="line">  </span><br><span class="line">begin  </span><br><span class="line">  </span><br><span class="line">-- 锁定席位  </span><br><span class="line">  </span><br><span class="line">open cursor for  </span><br><span class="line">select array_agg(id) into vid[] from table   </span><br><span class="line">  where column1=&#x27;车次号&#x27;   -- 指定车次  </span><br><span class="line">  and column2=&#x27;车次日期&#x27;   -- 指定发车日期  </span><br><span class="line">  -- and mod(pg_backend_pid(),100) = mod(pk,100)   -- 提高并发，如果有多个连接并发的在更新，可以直接分开落到不同的行，但是可能某些pID卖完了，可能会找不到票，建议不要开启这个条件  </span><br><span class="line">  and column4=&#x27;席别&#x27;  -- 指定席别  </span><br><span class="line">  and getbit(column3, 开始站点位置, 结束站点位置-1) = &#x27;0...0&#x27;  -- 获取起始位置的BIT位，要求全部为0  </span><br><span class="line">  order by column3 desc   -- 这个目的是先把已经卖了散票的的座位拿来卖，也符合铁大哥的思想，尽量把起点和重点的票卖出去，减少空洞  </span><br><span class="line">  for update  </span><br><span class="line">  skip locked  -- 跳过被锁的行，老牛逼了，不需要锁等待  </span><br><span class="line">  limit ?;     -- 要买几张票  </span><br><span class="line">  </span><br><span class="line">  if array_lengty(vid,1)=? then  -- 确保锁定行数与实际需要购票的数量一致   </span><br><span class="line">  </span><br><span class="line">    -- 购票，更新席别，设置对应BIT=1  </span><br><span class="line">    update ... set column3=set_bit(column3, 1, 开始位置, 结束位置) where id = any(vid);  </span><br><span class="line">  end if;  </span><br><span class="line">  </span><br><span class="line">end;  </span><br><span class="line">$$ language plpgsql;    </span><br></pre></td></tr></table></figure>
+<p>测试(old 输出) :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">digoal=# select * from buy(&#x27;D645&#x27;,&#x27;杭州南&#x27;,&#x27;宜春&#x27;,&#x27;2013-01-20&#x27;, 10);    </span><br><span class="line"> i_train_num | i_fstation | i_tstation | i_go_date  | o_slevel | o_bucket_no | o_sit_no | o_order_status     </span><br><span class="line">-------------+------------+------------+------------+----------+-------------+----------+----------------    </span><br><span class="line"> D645        | 杭州南     | 宜春       | 2013-01-20 | 一等座   |       35356 |        9 | t    </span><br><span class="line">(1 row)    </span><br></pre></td></tr></table></figure>
+<p>7. 余票统计(伪代码)</p>
+<p>表结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">create table ? (  </span><br><span class="line"> 车次  </span><br><span class="line"> 发车日期  </span><br><span class="line"> 起点  </span><br><span class="line"> 到站  </span><br><span class="line"> 余票  </span><br><span class="line">);  </span><br></pre></td></tr></table></figure>
+<p>统计SQL</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 车次,发车日期,count(varbit, 起点, 到站) from table group by 车次 发车日期;  </span><br></pre></td></tr></table></figure>
+<h2 id="五小结">五、小结</h2>
+<p>本文从铁路购票系统的需求出发，分析了购票系统的痛点，以及数据库设计时需要注意的事项。</p>
+<p>PostgreSQL的10个特性，加上阿里云对varbit和array的改进，可以很好的满足铁路购票系统的需求。</p>
+<p>1.
+照顾到余票查询的实时性、购票的锁竞争、以及超大规模的分库分表的需求。</p>
+<p>2.
+购票时，如果是中途票，会尽量选择已售的中途票，减少位置空洞的产生，保证更多的人可以购买到全程票。</p>
+<p>3. 使用bit描述了每一个站点是否被售出，不会出现有票不能卖的情况。</p>
+<h2 id="六以前写的同类文章">六、以前写的同类文章</h2>
+<h2 id="正文">正文</h2>
+<p>在PostgreSQL 中可以使用varbit存储比特位,
+下面模拟一个简单的应用场景.</p>
+<p>马上春节了, 火车票又到了销售旺季, 一票难求依旧.</p>
+<p>下面就以火车票销售为例来介绍一下PostgreSQL varbit类型的用法.</p>
+<p>测试环境 :</p>
+<p>PostgreSQL 9.2.1</p>
+<p>测试表 :</p>
+<p>列车信息表 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">create table train   </span><br><span class="line">(id int primary key, --主键  </span><br><span class="line">go_date date, -- 发车日期  </span><br><span class="line">train_num name, -- 车次  </span><br><span class="line">station text[] -- 途径站点  </span><br><span class="line">);   </span><br></pre></td></tr></table></figure>
+<p>车厢或bucket信息表 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">create table train_bucket   </span><br><span class="line">(id int primary key, --主键  </span><br><span class="line">tid int references train (id), -- 关联列车ID  </span><br><span class="line">bno int, -- 车厢或bucket号  </span><br><span class="line">sit_level text, -- 席别  </span><br><span class="line">sit_cnt int, -- 该车厢或bucket的座位总数  </span><br><span class="line">sit_remain int, -- 剩余座位  </span><br><span class="line">sit_bit varbit -- 座位BIT位, 已售座位用1表示, 未售座位用0表示  </span><br><span class="line">);  </span><br></pre></td></tr></table></figure>
+<p>位置信息表 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">create table train_sit   </span><br><span class="line">(id serial8 primary key, -- 主键  </span><br><span class="line">tid int references train (id), --关联列车ID  </span><br><span class="line">tbid int references train_bucket(id), --关联bucket表ID  </span><br><span class="line">sit_no int,  -- 座位号, 来自train_bucket.sit_bit的位置信息.  </span><br><span class="line">station_bit varbit  -- 途径站点组成的BIT位信息, 已售站点用1表示, 未售站点用0表示.  </span><br><span class="line">);  </span><br></pre></td></tr></table></figure>
+<p>创建索引 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">create index idx_train_bucket_sit_remain on train_bucket(sit_remain) where sit_remain&gt;0;  </span><br><span class="line">create index idx_train_sit_station_bit on train_sit (station_bit) where station_bit&lt;&gt;repeat(&#x27;1&#x27;, 13)::varbit;  </span><br></pre></td></tr></table></figure>
+<p>插入测试数据, 1趟火车, 途径14个站点.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into train values (1, &#x27;2013-01-20&#x27;, &#x27;D645&#x27;, array[&#x27;上海南&#x27;,&#x27;嘉兴&#x27;,&#x27;杭州南&#x27;,&#x27;诸暨&#x27;,&#x27;义乌&#x27;,&#x27;金华&#x27;,&#x27;衢州&#x27;,&#x27;上饶&#x27;,&#x27;鹰潭&#x27;,&#x27;新余&#x27;,&#x27;宜春&#x27;,&#x27;萍乡&#x27;,&#x27;株洲&#x27;,&#x27;长沙&#x27;]);  </span><br></pre></td></tr></table></figure>
+<p>插入测试数据, 共计200W个车厢或bucket, 每个车厢98个位置.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">insert into train_bucket values (generate_series(1,1000000), 1, generate_series(1,1000000), &#x27;一等座&#x27;, 98, 98, repeat(&#x27;0&#x27;,98)::varbit);  </span><br><span class="line">insert into train_bucket values (generate_series(1000001,2000000), 1, generate_series(1000001,2000000), &#x27;二等座&#x27;, 98, 98, repeat(&#x27;0&#x27;,98)::varbit);  </span><br></pre></td></tr></table></figure>
+<p>创建取数组中元素位置的函数 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">create or replace function array_pos (a anyarray, b anyelement) returns int as $$  </span><br><span class="line">declare  </span><br><span class="line">  i int;  </span><br><span class="line">begin  </span><br><span class="line">  for i in 1..array_length(a,1) loop  </span><br><span class="line">    if b=a[i] then  </span><br><span class="line">      return i;  </span><br><span class="line">    end if;  </span><br><span class="line">    i := i+1;  </span><br><span class="line">  end loop;  </span><br><span class="line">  return null;  </span><br><span class="line">end;  </span><br><span class="line">$$ language plpgsql;  </span><br></pre></td></tr></table></figure>
+<p>创建购票函数 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">create or replace function buy   </span><br><span class="line">(  </span><br><span class="line">inout i_train_num name,   </span><br><span class="line">inout i_fstation text,   </span><br><span class="line">inout i_tstation text,  </span><br><span class="line">inout i_go_date date,  </span><br><span class="line">out o_slevel text,  </span><br><span class="line">out o_bucket_no int,  </span><br><span class="line">out o_sit_no int,  </span><br><span class="line">out o_order_status boolean  </span><br><span class="line">)   </span><br><span class="line">returns record as $$  </span><br><span class="line">declare  </span><br><span class="line">  curs1 refcursor;  </span><br><span class="line">  curs2 refcursor;  </span><br><span class="line">  v_row int;  </span><br><span class="line">  v_station text[];  </span><br><span class="line">  v_train_id int;  </span><br><span class="line">  v_train_bucket_id int;  </span><br><span class="line">  v_train_sit_id int;  </span><br><span class="line">  v_from_station_idx int;  </span><br><span class="line">  v_to_station_idx int;  </span><br><span class="line">  v_station_len int;  </span><br><span class="line">begin  </span><br><span class="line">  set enable_seqscan=off;  </span><br><span class="line">  v_row := 0;  </span><br><span class="line">  o_order_status := false;  </span><br><span class="line">    </span><br><span class="line">  select array_length(station,1), station, id, array_pos(station, i_fstation), array_pos(station, i_tstation)   </span><br><span class="line">    into v_station_len, v_station, v_train_id, v_from_station_idx, v_to_station_idx   </span><br><span class="line">    from train where train_num=i_train_num and go_date = i_go_date;  </span><br><span class="line">  if ( found and array_pos(v_station, i_fstation) is not null   </span><br><span class="line">       and array_pos(v_station, i_tstation) is not null   </span><br><span class="line">       and array_pos(v_station, i_fstation) &lt; array_pos(v_station, i_tstation)   </span><br><span class="line">     ) then  </span><br><span class="line">  else  </span><br><span class="line">    o_order_status := false;  </span><br><span class="line">    return;  </span><br><span class="line">  end if;  </span><br><span class="line">    </span><br><span class="line">  open curs2 for select tid,tbid,sit_no from train_sit  </span><br><span class="line">    where (station_bit &amp; bitsetvarbit(repeat(&#x27;0&#x27;, v_station_len-1)::varbit, v_from_station_idx-1, v_to_station_idx-v_from_station_idx, 1)) = repeat(&#x27;0&#x27;, v_station_len-1)::varbit   </span><br><span class="line">    and station_bit &lt;&gt; repeat(&#x27;1&#x27;, v_station_len-1)::varbit  </span><br><span class="line">    -- and ctid not in (select locked_row from pgrowlocks(&#x27;train_sit&#x27;)) -- 耗时约300毫秒, 用它来解决热点锁等待不划算.  </span><br><span class="line">    limit 1  </span><br><span class="line">    for update nowait; -- 也可不加nowait, 加了的话如果获取锁失败将返回55P03异常, 需要程序重新提交  </span><br><span class="line">  loop  </span><br><span class="line">    fetch curs2 into v_train_id,v_train_bucket_id,o_sit_no;  </span><br><span class="line">    if found then  </span><br><span class="line">      update train_sit set station_bit=bitsetvarbit(station_bit, v_from_station_idx-1, v_to_station_idx-v_from_station_idx, 1)   </span><br><span class="line">        where current of curs2;  </span><br><span class="line">      GET DIAGNOSTICS v_row = ROW_COUNT;  </span><br><span class="line">      if (v_row = 1) then  </span><br><span class="line">        select sit_level, bno into o_slevel, o_bucket_no from train_bucket where id=v_train_bucket_id;  </span><br><span class="line"> close curs2;  </span><br><span class="line"> o_order_status := true;  </span><br><span class="line"> return;  </span><br><span class="line">      end if;  </span><br><span class="line">    else   </span><br><span class="line">      close curs2;  </span><br><span class="line">      exit;  </span><br><span class="line">    end if;  </span><br><span class="line">  end loop;  </span><br><span class="line">  </span><br><span class="line">  v_row := 0;  </span><br><span class="line">  </span><br><span class="line">  open curs1 for select id, tid, strpos(sit_bit::text,&#x27;0&#x27;), sit_level, bno from train_bucket   </span><br><span class="line">    where sit_remain&gt;0  </span><br><span class="line">    -- and ctid not in (select locked_row from pgrowlocks(&#x27;train_bucket&#x27;)) -- 耗时约300毫秒, 用它来解决热点锁等待不划算.  </span><br><span class="line">    limit 1   </span><br><span class="line">    for update nowait; -- 也可不加nowait, 加了的话如果获取锁失败将返回55P03异常, 需要程序重新提交.  </span><br><span class="line">  loop  </span><br><span class="line">    fetch curs1 into v_train_bucket_id, v_train_id, o_sit_no, o_slevel, o_bucket_no;  </span><br><span class="line">    if found then  </span><br><span class="line">      update train_bucket set sit_bit = set_bit(sit_bit, strpos(sit_bit::text,&#x27;0&#x27;)-1, 1), sit_remain = sit_remain-1  </span><br><span class="line">        where current of curs1;  </span><br><span class="line">      GET DIAGNOSTICS v_row = ROW_COUNT;  </span><br><span class="line">      if (v_row = 1) then  </span><br><span class="line">        close curs1;  </span><br><span class="line"> exit;  </span><br><span class="line">      end if;  </span><br><span class="line">    else   </span><br><span class="line">      close curs1;  </span><br><span class="line">      exit;  </span><br><span class="line">    end if;  </span><br><span class="line">  end loop;  </span><br><span class="line">  </span><br><span class="line">  if v_row = 1 then  </span><br><span class="line">    insert into train_sit(tid,tbid,sit_no,station_bit)  </span><br><span class="line">    values (  </span><br><span class="line">      v_train_id,   </span><br><span class="line">      v_train_bucket_id,   </span><br><span class="line">      o_sit_no,  </span><br><span class="line">      bitsetvarbit(repeat(&#x27;0&#x27;, v_station_len-1)::varbit, v_from_station_idx-1, v_to_station_idx-v_from_station_idx, 1)  </span><br><span class="line">      );  </span><br><span class="line">    o_order_status := true;  </span><br><span class="line">    return;  </span><br><span class="line">  else  </span><br><span class="line">    o_order_status := false;  </span><br><span class="line">    return;  </span><br><span class="line">  end if;  </span><br><span class="line">    </span><br><span class="line">  exception   </span><br><span class="line">  when others then  </span><br><span class="line">    o_order_status := false;  </span><br><span class="line">    return;  </span><br><span class="line">end;  </span><br><span class="line">$$ language plpgsql;  </span><br></pre></td></tr></table></figure>
+<p>测试 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">digoal=# select * from buy(&#x27;D645&#x27;,&#x27;杭州南&#x27;,&#x27;宜春&#x27;,&#x27;2013-01-20&#x27;);  </span><br><span class="line"> i_train_num | i_fstation | i_tstation | i_go_date  | o_slevel | o_bucket_no | o_sit_no | o_order_status   </span><br><span class="line">-------------+------------+------------+------------+----------+-------------+----------+----------------  </span><br><span class="line"> D645        | 杭州南     | 宜春       | 2013-01-20 | 一等座   |       35356 |        9 | t  </span><br><span class="line">(1 row)  </span><br></pre></td></tr></table></figure>
+<h2 id="压力测试">压力测试</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi test.sql  </span><br><span class="line">select * from buy(&#x27;D645&#x27;,&#x27;上海南&#x27;,&#x27;长沙&#x27;,&#x27;2013-01-20&#x27;);  </span><br></pre></td></tr></table></figure>
+<p>不加nowait测试结果 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ocz@db-172-16-3-150-&gt; pgbench -M prepared -f ./test.sql -n -r -c 16 -j 8 -T 1200 -U postgres digoal  </span><br><span class="line">transaction type: Custom query  </span><br><span class="line">scaling factor: 1  </span><br><span class="line">query mode: prepared  </span><br><span class="line">number of clients: 16  </span><br><span class="line">number of threads: 8  </span><br><span class="line">duration: 1200 s  </span><br><span class="line">number of transactions actually processed: 2197407  </span><br><span class="line">tps = 1831.143708 (including connections establishing)  </span><br><span class="line">tps = 1831.169308 (excluding connections establishing)  </span><br><span class="line">statement latencies in milliseconds:  </span><br><span class="line">        8.734424        select * from buy(&#x27;D645&#x27;,&#x27;上海南&#x27;,&#x27;长沙&#x27;,&#x27;2013-01-20&#x27;);  </span><br></pre></td></tr></table></figure>
+<p>加nowait测试结果 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ocz@db-172-16-3-150-&gt; pgbench -M prepared -f ./test.sql -n -r -c 16 -j 16 -T 12 -U postgres digoal  </span><br><span class="line">transaction type: Custom query  </span><br><span class="line">scaling factor: 1  </span><br><span class="line">query mode: prepared  </span><br><span class="line">number of clients: 16  </span><br><span class="line">number of threads: 16  </span><br><span class="line">duration: 12 s  </span><br><span class="line">number of transactions actually processed: 93632  </span><br><span class="line">tps = 7800.056248 (including connections establishing)  </span><br><span class="line">tps = 7818.803904 (excluding connections establishing)  </span><br><span class="line">statement latencies in milliseconds:  </span><br><span class="line">        2.042862        select * from buy(&#x27;D645&#x27;,&#x27;上海南&#x27;,&#x27;长沙&#x27;,&#x27;2013-01-20&#x27;);  </span><br></pre></td></tr></table></figure>
+<h2 id="小结">小结</h2>
+<p>1. 需要解决更新热点, 降低等待, 提高并行处理几率.</p>
+<pre><code>本例的热点在 :   </code></pre>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">update train_bucket set sit_bit = set_bit(sit_bit, strpos(sit_bit::text,&#x27;0&#x27;)-1, 1), sit_remain = sit_remain-1  </span><br><span class="line">   where current of curs1;  </span><br></pre></td></tr></table></figure>
+<p>以及</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">update train_sit set station_bit=bitsetvarbit(station_bit, v_from_station_idx-1, v_to_station_idx-v_from_station_idx, 1)   </span><br><span class="line">   where current of curs2;  </span><br></pre></td></tr></table></figure>
+<p>对应的游标 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">open curs2 for select tid,tbid,sit_no from train_sit  </span><br><span class="line">  where (station_bit &amp; bitsetvarbit(repeat(&#x27;0&#x27;, v_station_len-1)::varbit, v_from_station_idx-1, v_to_station_idx-v_from_station_idx, 1)) = repeat(&#x27;0&#x27;, v_station_len-1)::varbit   </span><br><span class="line">  and station_bit &lt;&gt; repeat(&#x27;1&#x27;, v_station_len-1)::varbit  </span><br><span class="line">  -- and ctid not in (select locked_row from pgrowlocks(&#x27;train_sit&#x27;)) -- 耗时约300毫秒, 用它来解决热点锁等待不划算.  </span><br><span class="line">  limit 1  </span><br><span class="line">  for update;  </span><br></pre></td></tr></table></figure>
+<p>以及</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">open curs1 for select id, tid, strpos(sit_bit::text,&#x27;0&#x27;), sit_level, bno from train_bucket   </span><br><span class="line">  where sit_remain&gt;0  </span><br><span class="line">  -- and ctid not in (select locked_row from pgrowlocks(&#x27;train_bucket&#x27;)) -- 耗时约300毫秒, 用它来解决热点锁等待不划算.  </span><br><span class="line">  limit 1   </span><br><span class="line">  for update;  </span><br></pre></td></tr></table></figure>
+<p>解决的关键在这里.</p>
+<p>如果不能解决热点的问题, 那就提高处理速度, 精简字段数量和长度,
+精简索引. 提高更新速度.</p>
+<p>2. 减少数据扫描的量.</p>
+<pre><code>partial index, 避免满座车厢的扫描, 以及全程占位位子的扫描.  </code></pre>
+<p>3. 先查bucket 是否空闲, 再查sit是否空闲.</p>
+<p>4. 还需要考虑优先级的问题 :</p>
+<p>例如有111000和111100两个位子, 如果请求要最后两个站的票,
+应该优先匹配111100, 这样更不容易浪费。如下 :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">111000 | 000011 = 111011  </span><br><span class="line">111100 | 000011 = 111111  </span><br></pre></td></tr></table></figure>
+<h2 id="参考">参考</h2>
+<p>1. setbitvarbit</p>
+<p>http://blog.163.com/digoal@126/blog/static/163877040201302192427651/</p>
+<p>​<br />
+​</p>
+<p><a rel="nofollow noopener" target="_blank" href="http://info.flagcounter.com/h9V1"  ><img src="http://s03.flagcounter.com/count/h9V1/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_12/viewers_0/labels_0/pageviews_0/flags_0/"  alt="Flag Counter"  border="0"  ></a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/12306/" rel="tag"># 12306</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/16/everything/" rel="prev" title="杂">
+                  <i class="fa fa-chevron-left"></i> 杂
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/19/gulugulu/" rel="next" title="java后端，我面了五轮阿里巴巴，然后凉了">
+                  java后端，我面了五轮阿里巴巴，然后凉了 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+</body>
+</html>

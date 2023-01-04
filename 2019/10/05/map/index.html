@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"nightsnack.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="为什么要引入最大后验？ 最大似然估计仅仅是求得似然函数的极值点，考虑到实验结果数量较少，有的时候仅靠最大似然估计不足以求得较为准确参数估计值。 拿这枚硬币抛了10次，得到的数据（\(x_0\)）是：反正正正正反正正正反。我们想求的正面概率θθ是模型参数，而抛硬币模型我们可以假设是 二项分布。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MAP最大后验估计">
+<meta property="og:url" content="https://nightsnack.github.io/2019/10/05/map/index.html">
+<meta property="og:site_name" content="Yuxuan Cai - Personal Blog">
+<meta property="og:description" content="为什么要引入最大后验？ 最大似然估计仅仅是求得似然函数的极值点，考虑到实验结果数量较少，有的时候仅靠最大似然估计不足以求得较为准确参数估计值。 拿这枚硬币抛了10次，得到的数据（\(x_0\)）是：反正正正正反正正正反。我们想求的正面概率θθ是模型参数，而抛硬币模型我们可以假设是 二项分布。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-10-05T15:21:37.000Z">
+<meta property="article:modified_time" content="2022-12-27T06:31:57.427Z">
+<meta property="article:author" content="Yuxuan Cai">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://nightsnack.github.io/2019/10/05/map/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>MAP最大后验估计 | Yuxuan Cai - Personal Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Yuxuan Cai - Personal Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Yuxuan Cai</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fas fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-blog">
+
+    <a href="/about/" rel="section"><i class="fa fa-blog fa-fw"></i>Blog</a>
+
+  </li>
+        <li class="menu-item menu-item-publications">
+
+    <a href="/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-resume">
+
+    <a href="/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuxuan Cai"
+      src="/image/avatar.png">
+  <p class="site-author-name" itemprop="name">Yuxuan Cai</p>
+  <div class="site-description" itemprop="description">Publications and Resume</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nightsnack" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nightsnack" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/yuxuan-cai-4a1833109" title="LinkedIn → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;yuxuan-cai-4a1833109" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>LinkedIn</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://dblp.org/pid/209/5515.html" title="dblp → https:&#x2F;&#x2F;dblp.org&#x2F;pid&#x2F;209&#x2F;5515.html" rel="noopener" target="_blank"><i class="fas fa-file-code fa-fw"></i>dblp</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/nightsnack" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2019/10/05/map/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/avatar.png">
+      <meta itemprop="name" content="Yuxuan Cai">
+      <meta itemprop="description" content="Publications and Resume">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yuxuan Cai - Personal Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MAP最大后验估计
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2019-10-05 23:21:37" itemprop="dateCreated datePublished" datetime="2019-10-05T23:21:37+08:00">2019-10-05</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2022-12-27 14:31:57" itemprop="dateModified" datetime="2022-12-27T14:31:57+08:00">2022-12-27</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">知识</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="为什么要引入最大后验">为什么要引入最大后验？</h2>
+<p>最大似然估计仅仅是求得似然函数的极值点，考虑到实验结果数量较少，有的时候仅靠最大似然估计不足以求得较为准确参数估计值。
+拿这枚硬币抛了10次，得到的数据（<span
+class="math inline">\(x_0\)</span>）是：反正正正正反正正正反。我们想求的正面概率θθ是模型参数，而抛硬币模型我们可以假设是
+二项分布。</p>
+<a id="more"></a>
+<p>那么，出现实验结果<span
+class="math inline">\(x_0\)</span>（即反正正正正反正正正反）的似然函数是多少呢？</p>
+<p><span class="math display">\[\begin{split}
+f(x_0,\theta) &amp;=
+(1−\theta)\times\theta\times\theta×\theta×\theta×(1−\theta)\times\theta×\theta×\theta×(1−\theta)
+\\
+&amp;=\theta^7(1−\theta)^3\\
+&amp;=f(θ)\\
+\end{split}\]</span></p>
+<p>注意，这是个只关于<span
+class="math inline">\(\theta\)</span>的函数。而最大似然估计，顾名思义，就是要最大化这个函数。我们可以画出<span
+class="math inline">\(f(θ)\)</span>的图像：</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1galj8v8jn8j31bk0qomyt.jpg"
+alt="likeli" />
+<figcaption aria-hidden="true">likeli</figcaption>
+</figure>
+<p>可以看出，在<span
+class="math inline">\(θ=0.7\)</span>时，似然函数取得最大值。</p>
+<p>这样，我们已经完成了对<span
+class="math inline">\(θ\)</span>的最大似然估计。即，抛10次硬币，发现7次硬币正面向上，最大似然估计认为正面向上的概率是0.7。（ummm..这非常直观合理，对吧？）</p>
+<p>且慢，一些人可能会说，硬币一般都是均匀的啊！
+就算你做实验发现结果是“反正正正正反正正正反”，我也不信<span
+class="math inline">\(θ=0.7\)</span>。</p>
+<p>这里就包含了贝叶斯学派的思想了——要考虑先验概率。
+为此，引入了最大后验概率估计。</p>
+<h2 id="最大后验估计">最大后验估计</h2>
+<p>最大似然估计是求参数<span class="math inline">\(θ\)</span>,
+使似然函数<span
+class="math inline">\(P(x0|θ)\)</span>最大。最大后验概率估计则是想求<span
+class="math inline">\(θ\)</span>使<span
+class="math inline">\(P(x0|θ)P(θ)\)</span>最大。求得的<span
+class="math inline">\(θ\)</span>不单单让似然函数大，<span
+class="math inline">\(θ\)</span>自己出现的先验概率也得大。
+（这有点像正则化里加惩罚项的思想，不过正则化里是利用加法，而MAP里是利用乘法）</p>
+<p>MAP其实是在最大化<span
+class="math inline">\(P(θ|x_0)=\frac{P(x_0|θ)P(θ)}{P(x_0)}\)</span>，不过因为<span
+class="math inline">\(x_0\)</span>是确定的（即投出的“反正正正正反正正正反”），<span
+class="math inline">\(P(x_0)\)</span>是一个已知值，所以去掉了分母<span
+class="math inline">\(P(x0)\)</span>（假设“投10次硬币”是一次实验，实验做了1000次，“反正正正正反正正正反”出现了n次，则<span
+class="math inline">\(P(x_0)=n/1000P(x_0)=n/1000\)</span>。总之，这是一个可以由数据集得到的值）。最大化<span
+class="math inline">\(P(θ|x_0)\)</span>的意义也很明确，<span
+class="math inline">\(x_0\)</span>已经出现了，要求<span
+class="math inline">\(θ\)</span>取什么值使<span
+class="math inline">\(P(θ|x_0)\)</span>最大。顺带一提，<span
+class="math inline">\(P(θ|x_0)\)</span>即后验概率，这就是“最大后验概率估计”名字的由来。</p>
+<p>对于投硬币的例子来看，我们认为（”先验地知道“）<span
+class="math inline">\(θ\)</span>取0.5的概率很大，取其他值的概率小一些。我们用一个高斯分布来具体描述我们掌握的这个先验知识，例如假设<span
+class="math inline">\(P(θ)\)</span>为均值0.5，方差0.1的高斯函数，如下图：</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1galkg7t34cj30zk0qomyd.jpg"
+alt="ptheta" />
+<figcaption aria-hidden="true">ptheta</figcaption>
+</figure>
+<p>则<span class="math inline">\(P(x0|θ)P(θ)\)</span>的函数图像为：</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1galkgdntyfj30zk0qodgz.jpg"
+alt="map1" />
+<figcaption aria-hidden="true">map1</figcaption>
+</figure>
+<p>注意，此时函数取最大值时，<span
+class="math inline">\(θ\)</span>取值已向左偏移，不再是0.7。实际上，在<span
+class="math inline">\(θ=0.558\)</span>时函数取得了最大值。即，用最大后验概率估计，得到<span
+class="math inline">\(θ=0.558\)</span>
+最后，那要怎样才能说服一个贝叶斯派相信<span
+class="math inline">\(θ=0.7\)</span>呢？你得多做点实验。。</p>
+<p>如果做了1000次实验，其中700次都是正面向上，这时似然函数为:</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1galkglnlzaj30zk0qomy1.jpg"
+alt="likeli2" />
+<figcaption aria-hidden="true">likeli2</figcaption>
+</figure>
+<p>如果仍然假设<span
+class="math inline">\(P(θ)\)</span>为均值0.5，方差0.1的高斯函数，<span
+class="math inline">\(P(x0|θ)P(θ)\)</span>的函数图像为：</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1galkgtqxixj30zk0qoaat.jpg"
+alt="map2" />
+<figcaption aria-hidden="true">map2</figcaption>
+</figure>
+<p>在<span class="math inline">\(θ=0.696\)</span>处，<span
+class="math inline">\(P(x0|θ)P(θ)\)</span>取得最大值。</p>
+<p>这样，就算一个考虑了先验概率的贝叶斯派，也不得不承认得把<span
+class="math inline">\(θ\)</span>估计在0.7附近了。</p>
+<p>PS. 要是遇上了顽固的贝叶斯派，认为<span
+class="math inline">\(P(θ=0.5)=1\)</span> ，那就没得玩了。。
+无论怎么做实验，使用MAP估计出来都是<span
+class="math inline">\(θ=0.5\)</span>。这也说明，一个合理的先验概率假设是很重要的。（通常，先验概率能从数据中直接分析得到）</p>
+<h2
+id="最大似然估计和最大后验概率估计的区别">最大似然估计和最大后验概率估计的区别</h2>
+<p>相信读完上文，MLE和MAP的区别应该是很清楚的了。MAP就是多个作为因子的先验概率P(θ)P(θ)。或者，也可以反过来，认为MLE是把先验概率<span
+class="math inline">\(P(θ)\)</span>认为等于1，即认为<span
+class="math inline">\(θ\)</span>是均匀分布。</p>
+<h2 id="map-分类">MAP 分类</h2>
+<p>说实话我也不知道这是个啥东西，5644的一次作业题里有这样一个问题：</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1galkxp2e62j31go0u048z.jpg"
+alt="image-20200105123707614" />
+<figcaption aria-hidden="true">image-20200105123707614</figcaption>
+</figure>
+<p>大体意思就是服从高斯分布的三个类，给了均值和方差，你可以生成出来三组数据，混合在一起的。然后希望你用MAP的方式把它分开，跟踪分对和分错的数量，给出confusion
+matrix。</p>
+<p>操作方式就是：</p>
+<p>对于所有的点来说，他们都有可能分属于3个类别，算出来对于每一个类别（有多大可能性属于它），然后选出来最大的那个类别，就是这个点最可能属于的类。</p>
+<p>计算的公式我觉得这里叫做MAP其实不太合适，这只是个后验概率而已，公式是后验=条件概率x先验。当然，还要取对数。先验已知了。<span
+class="math inline">\(ln(P(x|L_k))\)</span>
+这个条件概率（就是已知这个点属于第K类的时候，它的概率密度）由高斯分布pdf的公式可以求出来。</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1gallc873upj30so0mg104.jpg"
+alt="image-20200105125105925" />
+<figcaption aria-hidden="true">image-20200105125105925</figcaption>
+</figure>
+<p>Numbers of each sample:</p>
+<p>sample 1: 1517</p>
+<p>sample 2: 3441</p>
+<p>sample 3: 5042</p>
+<p>Classification Rule (MAP) Description:</p>
+<p>From the data generated, we could see this is a typical GMM model,
+with 3 class prior and each class's <span
+class="math inline">\(\Sigma\)</span> and <span
+class="math inline">\(\mu\)</span>，Let <span
+class="math inline">\(P(L_k) = P(L=k),k ={1,2,3}\)</span></p>
+<p><span class="math display">\[\begin{gather*}
+    g_k(x) = ln(P(x|L_k)) + ln(P(L_k)) \\
+    ln(P(x|L_k))  = -\frac{1}{2}ln(2\pi)-\frac{1}{2}ln|\Sigma_{k}|-
+\frac{1}{2}(x-\mu)\Sigma^{-1}(x-\mu)&#39;   \\     
+\end{gather*}\]</span></p>
+<p>For each point, by using pdf we can calculate all the points for 3
+class's <span class="math inline">\(arg_{C_k}maxg_k(x)\)</span> as a
+score. Then the maximum of 3 scores is the decision of coresponding
+class decision label. $$ confusion_matrix = $$</p>
+<p>total misclassified samples: 753</p>
+<p>probability of error 0.075300</p>
+<figure>
+<img
+src="https://tva1.sinaimg.cn/large/006tNbRwly1gallcmnakrj30kq0ku459.jpg"
+alt="image-20200105125128320" />
+<figcaption aria-hidden="true">image-20200105125128320</figcaption>
+</figure>
+<p>脚本链接：
+https://github.com/nightsnack/ce564_ml/blob/master/Midterm/Question1.m</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/09/28/maxlikelyhood/" rel="prev" title="最大似然估计">
+                  <i class="fa fa-chevron-left"></i> 最大似然估计
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/10/17/embasic/" rel="next" title="EM 算法的基本步骤">
+                  EM 算法的基本步骤 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+</body>
+</html>

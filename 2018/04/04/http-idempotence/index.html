@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"nightsnack.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="理解RESTful的幂等性，并且设计符合幂等规范的高质量RESTful API。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何理解HTTP请求的RESTful的幂等性">
+<meta property="og:url" content="https://nightsnack.github.io/2018/04/04/http-idempotence/index.html">
+<meta property="og:site_name" content="Yuxuan Cai - Personal Blog">
+<meta property="og:description" content="理解RESTful的幂等性，并且设计符合幂等规范的高质量RESTful API。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-04-03T17:01:46.000Z">
+<meta property="article:modified_time" content="2022-12-27T06:31:57.425Z">
+<meta property="article:author" content="Yuxuan Cai">
+<meta property="article:tag" content="计算机网络">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://nightsnack.github.io/2018/04/04/http-idempotence/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>如何理解HTTP请求的RESTful的幂等性 | Yuxuan Cai - Personal Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Yuxuan Cai - Personal Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Yuxuan Cai</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fas fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-blog">
+
+    <a href="/about/" rel="section"><i class="fa fa-blog fa-fw"></i>Blog</a>
+
+  </li>
+        <li class="menu-item menu-item-publications">
+
+    <a href="/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-resume">
+
+    <a href="/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuxuan Cai"
+      src="/image/avatar.png">
+  <p class="site-author-name" itemprop="name">Yuxuan Cai</p>
+  <div class="site-description" itemprop="description">Publications and Resume</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nightsnack" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nightsnack" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/yuxuan-cai-4a1833109" title="LinkedIn → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;yuxuan-cai-4a1833109" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>LinkedIn</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://dblp.org/pid/209/5515.html" title="dblp → https:&#x2F;&#x2F;dblp.org&#x2F;pid&#x2F;209&#x2F;5515.html" rel="noopener" target="_blank"><i class="fas fa-file-code fa-fw"></i>dblp</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/nightsnack" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2018/04/04/http-idempotence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/avatar.png">
+      <meta itemprop="name" content="Yuxuan Cai">
+      <meta itemprop="description" content="Publications and Resume">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yuxuan Cai - Personal Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何理解HTTP请求的RESTful的幂等性
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-04-04 01:01:46" itemprop="dateCreated datePublished" datetime="2018-04-04T01:01:46+08:00">2018-04-04</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2022-12-27 14:31:57" itemprop="dateModified" datetime="2022-12-27T14:31:57+08:00">2022-12-27</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>理解RESTful的幂等性，并且设计符合幂等规范的高质量RESTful API。
+<a id="more"></a></p>
+<h2
+id="怎么理解http请求getpostputdelete的幂等性">怎么理解HTTP请求GET/POST/PUT/DELETE的幂等性</h2>
+<p>HTTP幂等方法，是指无论调用多少次都不会有不同结果的 HTTP
+方法。不管你调用一次，还是调用一百次，一千次，结果都是相同的。</p>
+<p>还是以之前的博文的例子为例。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">GET</span>     /tickets       # 获取ticket列表</span><br><span class="line"><span class="variable constant_">GET</span>     /tickets/<span class="number">12</span>    # 查看某个具体的ticket</span><br><span class="line"><span class="variable constant_">POST</span>    /tickets       # 新建一个ticket</span><br><span class="line"><span class="variable constant_">PUT</span>     /tickets/<span class="number">12</span>    # 更新ticket <span class="number">12</span></span><br><span class="line"><span class="variable constant_">PATCH</span>   /tickets/<span class="number">12</span>    # 更新ticket <span class="number">12</span></span><br><span class="line"><span class="variable constant_">DELETE</span>  /tickets/<span class="number">12</span>    # 删除ticekt <span class="number">12</span></span><br></pre></td></tr></table></figure>
+<h3 id="http-get方法">HTTP GET方法</h3>
+<p>HTTP
+GET方法，用于获取资源，不管调用多少次接口，结果都不会改变，所以是幂等的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET     /tickets       # 获取ticket列表</span><br><span class="line">GET     /tickets/12    # 查看某个具体的ticket</span><br></pre></td></tr></table></figure>
+<p>只是查询数据，不会影响到资源的变化，因此我们认为它幂等。</p>
+<p>值得注意，幂等性指的是作用于结果而非资源本身。怎么理解呢？例如，这个HTTP
+GET方法可能会每次得到不同的返回内容，但并不影响资源。</p>
+<p>可能你会问有这种情况么？当然有咯。例如，我们有一个接口获取当前时间，我们就应该设计成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET     /service_time # 获取服务器当前时间</span><br></pre></td></tr></table></figure>
+<p>它本身不会对资源本身产生影响，因此满足幂等性。</p>
+<h3 id="http-post方法">HTTP POST方法</h3>
+<p>HTTP POST方法是一个非幂等方法，因为调用多次，都将产生新的资源。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST    /tickets       # 新建一个ticket</span><br></pre></td></tr></table></figure>
+<p>因为它会对资源本身产生影响，每次调用都会有新的资源产生，因此不满足幂等性。</p>
+<h3 id="http-put方法">HTTP PUT方法</h3>
+<p>HTTP PUT方法是不是幂等的呢？我们来看下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT     /tickets/12    # 更新ticket 12</span><br></pre></td></tr></table></figure>
+<p>因为它直接把实体部分的数据替换到服务器的资源，我们多次调用它，只会产生一次影响，但是有相同结果的
+HTTP 方法，所以满足幂等性。</p>
+<h3 id="http-patch方法">HTTP PATCH方法</h3>
+<p>HTTP PATCH方法是非幂等的。HTTP POST方法和HTTP
+PUT方法可能比较好理解，但是HTTP
+PATCH方法只是更新部分资源，怎么是非幂等的呢?</p>
+<p>因为，PATCH提供的实体则需要根据程序或其它协议的定义，解析后在服务器上执行，以此来修改服务器上的资源。换句话说，PATCH请求是会执行某个程序的，如果重复提交，程序可能执行多次，对服务器上的资源就可能造成额外的影响，这就可以解释它为什么是非幂等的了。</p>
+<p>可能你还不能理解这点。我们举个例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PATCH   /tickets/12    # 更新ticket 12</span><br></pre></td></tr></table></figure>
+<p>此时，我们服务端对方法的处理是，当调用一次方法，更新部分字段，将这条ticket记录的操作记录加一，这次，每次调用的资源是不是变了呢，所以它是有可能是非幂等的操作。</p>
+<h3 id="http-delete方法">HTTP DELETE方法</h3>
+<p>HTTP DELETE方法用于删除资源，会将资源删除。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE  /tickets/12    # 删除ticekt 12</span><br></pre></td></tr></table></figure>
+<p>调用一次和多次对资源产生影响是相同的，所以也满足幂等性。</p>
+<h2
+id="如何设计符合幂等性的高质量restful-api">如何设计符合幂等性的高质量RESTful
+API</h2>
+<h3 id="http-get方法-vs-http-post方法">HTTP GET方法 vs HTTP
+POST方法</h3>
+<p>也许，你会想起一个面试题。HTTP请求的GET与POST方式有什么区别？你可能会回答到：GET方式通过URL提交数据，数据在URL中可以看到；POST方式，数据放置在HTML
+HEADER内提交。但是，我们现在从RESTful的资源角度来看待问题，HTTP
+GET方法是幂等的，所以它适合作为查询操作，HTTP
+POST方法是非幂等的，所以用来表示新增操作。</p>
+<p>但是，也有例外，我们有的时候可能需要把查询方法改造成HTTP
+POST方法。比如，超长（1k）的GET
+URL使用POST方法来替代，因为GET受到URL长度的限制。虽然，它不符合幂等性，但是它是一种折中的方案。</p>
+<h3 id="http-post方法-vs-http-put方法">HTTP POST方法 vs HTTP
+PUT方法</h3>
+<p>对于HTTP POST方法和TTP
+PUT方法，我们一般的理解是POST表示创建资源，PUT表示更新资源。当然，这个是正确的理解。</p>
+<p>但是，实际上，两个方法都用于创建资源，更为本质的差别是在幂等性。HTTP
+POST方法是非幂等，所以用来表示创建资源，HTTP
+PUT方法是幂等的，因此表示更新资源更加贴切。</p>
+<h3 id="http-put方法-vs-http-patch方法">HTTP PUT方法 vs HTTP
+PATCH方法</h3>
+<p>此时，你看会有另外一个问题。HTTP PUT方法和HTTP
+PATCH方法，都是用来表述更新资源，它们之间有什么区别呢？我们一般的理解是PUT表示更新全部资源，PATCH表示更新部分资源。首先，这个是我们遵守的第一准则。根据上面的描述，PATCH方法是非幂等的，因此我们在设计我们服务端的RESTful
+API的时候，也需要考虑。如果，我们想要明确的告诉调用者我们的资源是幂等的，我的设计更倾向于使用
+HTTP PUT 方法。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag"># 计算机网络</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/21/database-isolation/" rel="prev" title="数据库隔离级别">
+                  <i class="fa fa-chevron-left"></i> 数据库隔离级别
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/16/java-gc/" rel="next" title="java gc复制法为什么要用survivor">
+                  java gc复制法为什么要用survivor <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+</body>
+</html>

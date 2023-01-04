@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"nightsnack.github.io","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="一、问题的提出 在应用系统开发初期，由于开发数据库数据比较少，对于查询SQL语句，复杂视图的的编写等体会不出SQL语句各种写法的性能优劣，但是如果将应用系统提交实际应用后，随着数据库中数据的增加，系统的响应速度就成为目前系统需要解决的最主要的问题之一。系统优化中一个很重要的方面就是SQL语句的优化。对于海量数据，劣质SQL语句和优质SQL语句之间的速度差别可以达到上百倍，可见对于一个系统不是简单地">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sql-optimization">
+<meta property="og:url" content="https://nightsnack.github.io/2018/04/19/sql-optimization/index.html">
+<meta property="og:site_name" content="Yuxuan Cai - Personal Blog">
+<meta property="og:description" content="一、问题的提出 在应用系统开发初期，由于开发数据库数据比较少，对于查询SQL语句，复杂视图的的编写等体会不出SQL语句各种写法的性能优劣，但是如果将应用系统提交实际应用后，随着数据库中数据的增加，系统的响应速度就成为目前系统需要解决的最主要的问题之一。系统优化中一个很重要的方面就是SQL语句的优化。对于海量数据，劣质SQL语句和优质SQL语句之间的速度差别可以达到上百倍，可见对于一个系统不是简单地">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-04-19T08:37:27.000Z">
+<meta property="article:modified_time" content="2022-12-27T06:31:57.429Z">
+<meta property="article:author" content="Yuxuan Cai">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="sql">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://nightsnack.github.io/2018/04/19/sql-optimization/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>sql-optimization | Yuxuan Cai - Personal Blog</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Yuxuan Cai - Personal Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Yuxuan Cai</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fas fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-blog">
+
+    <a href="/about/" rel="section"><i class="fa fa-blog fa-fw"></i>Blog</a>
+
+  </li>
+        <li class="menu-item menu-item-publications">
+
+    <a href="/publications" rel="section"><i class="fas fa-book-open fa-fw"></i>Publications</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-resume">
+
+    <a href="/attaches/CV.pdf" rel="section"><i class="fas fa-file fa-fw"></i>Resume</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Yuxuan Cai"
+      src="/image/avatar.png">
+  <p class="site-author-name" itemprop="name">Yuxuan Cai</p>
+  <div class="site-description" itemprop="description">Publications and Resume</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nightsnack" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;nightsnack" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:nightsnackc@gmail.com" title="E-Mail → mailto:nightsnackc@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/yuxuan-cai-4a1833109" title="LinkedIn → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;yuxuan-cai-4a1833109" rel="noopener" target="_blank"><i class="fab fa-linkedin-in fa-fw"></i>LinkedIn</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://dblp.org/pid/209/5515.html" title="dblp → https:&#x2F;&#x2F;dblp.org&#x2F;pid&#x2F;209&#x2F;5515.html" rel="noopener" target="_blank"><i class="fas fa-file-code fa-fw"></i>dblp</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://scholar.google.com/citations?user=EzYiBeUAAAAJ&hl=en" title="Google Scholar → https:&#x2F;&#x2F;scholar.google.com&#x2F;citations?user&#x3D;EzYiBeUAAAAJ&amp;hl&#x3D;en" rel="noopener" target="_blank"><i class="fab fa-google fa-fw"></i>Google Scholar</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/nightsnack" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://nightsnack.github.io/2018/04/19/sql-optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/avatar.png">
+      <meta itemprop="name" content="Yuxuan Cai">
+      <meta itemprop="description" content="Publications and Resume">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yuxuan Cai - Personal Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          sql-optimization
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-04-19 16:37:27" itemprop="dateCreated datePublished" datetime="2018-04-19T16:37:27+08:00">2018-04-19</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2022-12-27 14:31:57" itemprop="dateModified" datetime="2022-12-27T14:31:57+08:00">2022-12-27</time>
+      </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><strong>一、问题的提出</strong></p>
+<p>在应用系统开发初期，由于开发数据库数据比较少，对于查询SQL语句，复杂视图的的编写等体会不出SQL语句各种写法的性能优劣，但是如果将应用系统提交实际应用后，随着数据库中数据的增加，系统的响应速度就成为目前系统需要解决的最主要的问题之一。系统优化中一个很重要的方面就是SQL语句的优化。对于海量数据，劣质SQL语句和优质SQL语句之间的速度差别可以达到上百倍，可见对于一个系统不是简单地能实现其功能就可，而是要写出高质量的SQL语句，提高系统的可用性。
+<a id="more"></a></p>
+<p><strong>在多数情况下，Oracle使用索引来更快地遍历表，优化器主要根据定义的索引来提高性能</strong>。但是，如果在SQL语句的where子句中写的SQL代码不合理，就会<strong>造成优化器删去索引而使用全表扫描</strong>，一般就这种SQL语句就是所谓的劣质SQL语句。在编写SQL语句时我们应清楚优化器根据何种原则来删除索引，这有助于写出高性能的SQL语句。</p>
+<p><strong>二、SQL语句编写注意问题</strong></p>
+<p>下面就某些SQL语句的where子句编写中需要注意的问题作详细介绍。在这些where子句中，即使某些列存在索引，但是由于编写了劣质的SQL，系统在运行该SQL语句时也不能使用该索引，而同样使用全表扫描，这就造成了响应速度的极大降低。</p>
+<p><strong>1. 操作符优化</strong></p>
+<p><strong>(a) IN 操作符</strong></p>
+<p>用IN写出来的SQL的优点是比较容易写及清晰易懂，这比较适合现代软件开发的风格。但是用IN的SQL性能总是比较低的，从Oracle执行的步骤来分析用IN的SQL与不用IN的SQL有以下区别：</p>
+<p>ORACLE试图将其转换成多个表的连接，如果转换不成功则先执行IN里面的子查询，再查询外层的表记录，如果转换成功则直接采用多个表的连接方式查询。由此可见用IN的SQL至少多了一个转换的过程。一般的SQL都可以转换成功，但对于含有分组统计等方面的SQL就不能转换了。</p>
+<p><strong>推荐方案：</strong>在业务密集的SQL当中尽量不采用IN操作符，用EXISTS
+方案代替。</p>
+<p><strong>(b) NOT IN操作符</strong></p>
+<p>此操作是强列不推荐使用的，因为它不能应用表的索引。</p>
+<p><strong>推荐方案：</strong>用NOT EXISTS 方案代替</p>
+<p><strong>(c) IS NULL 或IS NOT
+NULL操作</strong>（判断字段是否为空）</p>
+<p>判断字段是否为空一般是不会应用索引的，因为索引是不索引空值的。不能用null作索引，任何包含null值的列都将不会被包含在索引中。即使索引有多列这样的情况下，只要这些列中有一列含有null，该列就会从索引中排除。也就是说如果某列存在空值，即使对该列建索引也不会提高性能。任何在where子句中使用is
+null或is not null的语句优化器是不允许使用索引的。</p>
+<p><strong>推荐方案</strong>：用其它相同功能的操作运算代替，如：a is not
+null 改为 a&gt;0
+或a&gt;’’等。不允许字段为空，而用一个缺省值代替空值，如申请中状态字段不允许为空，缺省为申请。</p>
+<p><strong>(d) &gt; 及 &lt; 操作符（大于或小于操作符）</strong></p>
+<p>大于或小于操作符一般情况下是不用调整的，因为它有索引就会采用索引查找，但有的情况下可以对它进行优化，如一个表有100万记录，一个数值型字段A，30万记录的A=0，30万记录的A=1，39万记录的A=2，1万记录的A=3。那么执行A&gt;2与A&gt;=3的效果就有很大的区别了，因为A&gt;2时ORACLE会先找出为2的记录索引再进行比较，而A&gt;=3时ORACLE则直接找到=3的记录索引。</p>
+<p><strong>(e) LIKE操作符</strong></p>
+<p>LIKE操作符可以应用通配符查询，里面的通配符组合可能达到几乎是任意的查询，但是如果用得不好则会产生性能上的问题，如LIKE
+‘%5400%’ 这种查询不会引用索引，而LIKE ‘X5400%’则会引用范围索引。</p>
+<p>一个实际例子：用YW_YHJBQK表中营业编号后面的户标识号可来查询营业编号
+YY_BH LIKE ‘%5400%’ 这个条件会产生全表扫描，如果改成YY_BH LIKE ’X5400%’
+OR YY_BH LIKE ’B5400%’
+则会利用YY_BH的索引进行两个范围的查询，性能肯定大大提高。</p>
+<p>带通配符(%)的like语句：</p>
+<p>同样以上面的例子来看这种情况。目前的需求是这样的，要求在职工表中查询名字中包含cliton的人。可以采用如下的查询SQL语句:</p>
+<p>select * from employee where last_name like '%cliton%';</p>
+<p>这里由于通配符(%)在搜寻词首出现，所以Oracle系统不使用last_name的索引。在很多情况下可能无法避免这种情况，但是一定要心中有底，通配符如此使用会降低查询速度。然而当通配符出现在字符串其他位置时，优化器就能利用索引。在下面的查询中索引得到了使用:</p>
+<p>select * from employee where last_name like 'c%';</p>
+<p><strong>(f) UNION操作符</strong></p>
+<p>UNION在进行表链接后会筛选掉重复的记录，所以在表链接后会对所产生的结果集进行排序运算，删除重复的记录再返回结果。实际大部分应用中是不会产生重复的记录，最常见的是过程表与历史表UNION。如：
+select * from gc_dfys union select * from ls_jg_dfys
+这个SQL在运行时先取出两个表的结果，再用排序空间进行排序删除重复的记录，最后返回结果集，如果表数据量大的话可能会导致用磁盘进行排序。</p>
+<p><strong>推荐方案：</strong>采用UNION ALL操作符替代UNION，因为UNION
+ALL操作只是简单的将两个结果合并后就返回。</p>
+<p>select * from gc_dfys union all select * from ls_jg_dfys</p>
+<p><strong>(g) 联接列</strong></p>
+<p>对于有联接的列，即使最后的联接值为一个静态值，优化器是不会使用索引的。我们一起来看一个例子，假定有一个职工表(employee)，对于一个职工的姓和名分成两列存放(FIRST_NAME和LAST_NAME)，现在要查询一个叫比尔.克林顿(Bill
+Cliton)的职工。</p>
+<p>下面是一个采用联接查询的SQL语句：</p>
+<p>select * from employss where first_name||''||last_name ='Beill
+Cliton';</p>
+<p>上面这条语句完全可以查询出是否有Bill
+Cliton这个员工，但是这里需要注意，系统优化器对基于last_name创建的索引没有使用。当采用下面这种SQL语句的编写，Oracle系统就可以采用基于last_name创建的索引。</p>
+<p>*** where first_name ='Beill' and last_name ='Cliton';</p>
+<p><strong>(h) Order by语句</strong></p>
+<p>ORDER BY语句决定了Oracle如何将返回的查询结果排序。Order
+by语句对要排序的列没有什么特别的限制，也可以将函数加入列中(象联接或者附加等)。任何在Order
+by语句的非索引项或者有计算表达式都将降低查询速度。</p>
+<p>仔细检查order
+by语句以找出非索引项或者表达式，它们会降低性能。解决这个问题的办法就是重写order
+by语句以使用索引，也可以为所使用的列建立另外一个索引，同时应绝对避免在order
+by子句中使用表达式。</p>
+<p><strong>(i) NOT</strong></p>
+<p>我们在查询时经常在where子句使用一些逻辑表达式，如大于、小于、等于以及不等于等等，也可以使用and(与)、or(或)以及not(非)。NOT可用来对任何逻辑运算符号取反。下面是一个NOT子句的例子:</p>
+<p>... where not (status ='VALID')</p>
+<p>如果要使用NOT，则应在取反的短语前面加上括号，并在短语前面加上NOT运算符。NOT运算符包含在另外一个逻辑运算符中，这就是不等于(&lt;&gt;)运算符。换句话说，即使不在查询where子句中显式地加入NOT词，NOT仍在运算符中，见下例:</p>
+<p>... where status &lt;&gt;'INVALID';</p>
+<p>对这个查询，可以改写为不使用NOT：</p>
+<p>select * from employee where salary&lt;3000 or salary&gt;3000;</p>
+<p>虽然这两种查询的结果一样，但是第二种查询方案会比第一种查询方案更快些。第二种查询允许Oracle对salary列使用索引，而第一种查询则不能使用索引。</p>
+<p><strong>2. SQL书写的影响</strong></p>
+<p><strong>(a) 同一功能同一性能不同写法SQL的影响。</strong></p>
+<p>如一个SQL在A程序员写的为 Select * from zl_yhjbqk</p>
+<p>B程序员写的为 Select * from dlyx.zl_yhjbqk（带表所有者的前缀）</p>
+<p>C程序员写的为 Select * from DLYX.ZLYHJBQK（大写表名）</p>
+<p>D程序员写的为 Select * from DLYX.ZLYHJBQK（中间多了空格）</p>
+<p>以上四个SQL在ORACLE分析整理之后产生的结果及执行的时间是一样的，但是从ORACLE共享内存SGA的原理，可以得出ORACLE对每个SQL
+都会对其进行一次分析，并且占用共享内存，如果将SQL的字符串及格式写得完全相同，则ORACLE只会分析一次，共享内存也只会留下一次的分析结果，这不仅可以减少分析SQL的时间，而且可以减少共享内存重复的信息，ORACLE也可以准确统计SQL的执行频率。</p>
+<p><strong>(b) WHERE后面的条件顺序影响</strong></p>
+<p>WHERE子句后面的条件顺序对大数据量表的查询会产生直接的影响。如：
+Select * from zl_yhjbqk where dy_dj = '1KV以下' and xh_bz=1 Select *
+from zl_yhjbqk where xh_bz=1 and dy_dj = '1KV以下'
+以上两个SQL中dy_dj（电压等级）及xh_bz（销户标志）两个字段都没进行索引，所以执行的时候都是全表扫描，第一条SQL的dy_dj
+=
+'1KV以下'条件在记录集内比率为99%，而xh_bz=1的比率只为0.5%，在进行第一条SQL的时候99%条记录都进行dy_dj及xh_bz的比较，而在进行第二条SQL的时候0.5%条记录都进行dy_dj及xh_bz的比较，以此可以得出第二条SQL的CPU占用率明显比第一条低。</p>
+<p><strong>(c) 查询表顺序的影响</strong></p>
+<p>在FROM后面的表中的列表顺序会对SQL执行性能影响，在没有索引及ORACLE没有对表进行统计分析的情况下，ORACLE会按表出现的顺序进行链接，由此可见表的顺序不对时会产生十分耗服物器资源的数据交叉。（注：如果对表进行了统计分析，ORACLE会自动先进小表的链接，再进行大表的链接）</p>
+<p><strong>3. SQL语句索引的利用</strong></p>
+<p><strong>(a) 对条件字段的一些优化</strong></p>
+<p><strong>采用函数处理的字段不能利用索引，</strong>如：</p>
+<p>substr(hbs_bh,1,4)=’5400’，优化处理：hbs_bh like ‘5400%’</p>
+<p>trunc(sk_rq)=trunc(sysdate)， 优化处理：sk_rq&gt;=trunc(sysdate) and
+sk_rq&lt;trunc(sysdate+1)</p>
+<p>进行了显式或隐式的运算的字段不能进行索引，如：ss_df+20&gt;50，优化处理：ss_df&gt;30</p>
+<p>‘X’ || hbs_bh&gt;’X5400021452’，优化处理：hbs_bh&gt;’5400021542’</p>
+<p>sk_rq+5=sysdate，优化处理：sk_rq=sysdate-5</p>
+<p>hbs_bh=5401002554，优化处理：hbs_bh=’ 5401002554’，注：此条件对hbs_bh
+进行隐式的to_number转换，因为hbs_bh字段是字符型。</p>
+<p><strong>条件内包括了多个本表的字段运算时不能进行索引</strong>，如：</p>
+<p>ys_df&gt;cx_df，无法进行优化 qc_bh ||
+kh_bh=’5400250000’，优化处理：qc_bh=’5400’ and kh_bh=’250000’</p>
+<p><strong>4. 更多方面SQL优化资料分享</strong></p>
+<p><strong>（1）
+选择最有效率的表名顺序(只在基于规则的优化器中有效)：</strong></p>
+<p>ORACLE
+的解析器按照从右到左的顺序处理FROM子句中的表名，FROM子句中写在最后的表(基础表
+driving
+table)将被最先处理，在FROM子句中包含多个表的情况下,你必须选择记录条数最少的表作为基础表。如果有3个以上的表连接查询,
+那就需要选择交叉表(intersection table)作为基础表,
+交叉表是指那个被其他表所引用的表.</p>
+<p><strong>（2） WHERE子句中的连接顺序：</strong></p>
+<p>ORACLE采用自下而上的顺序解析WHERE子句,根据这个原理,表之间的连接必须写在其他WHERE条件之前,
+那些可以过滤掉最大数量记录的条件必须写在WHERE子句的末尾.</p>
+<p><strong>（3） SELECT子句中避免使用 ‘ * ‘：</strong></p>
+<p>ORACLE在解析的过程中, 会将'*' 依次转换成所有的列名,
+这个工作是通过查询数据字典完成的, 这意味着将耗费更多的时间。</p>
+<p><strong>（4） 减少访问数据库的次数：</strong></p>
+<p>ORACLE在内部执行了许多工作: 解析SQL语句, 估算索引的利用率, 绑定变量 ,
+读数据块等。</p>
+<p>（5） 在SQL<em>Plus , SQL</em>Forms和Pro*C中重新设置ARRAYSIZE参数,
+可以增加每次数据库访问的检索数据量 ,建议值为200。</p>
+<p><strong>（6） 使用DECODE函数来减少处理时间：</strong></p>
+<p>使用DECODE函数可以避免重复扫描相同记录或重复连接相同的表.</p>
+<p><strong>（7） 整合简单,无关联的数据库访问：</strong></p>
+<p>如果你有几个简单的数据库查询语句,你可以把它们整合到一个查询中(即使它们之间没有关系)
+。</p>
+<p><strong>（8） 删除重复记录：</strong></p>
+<p>最高效的删除重复记录方法 ( 因为使用了ROWID)例子： DELETE FROM EMP E
+WHERE E.ROWID &gt; (SELECT MIN(X.ROWID) FROM EMP X WHERE X.EMP_NO =
+E.EMP_NO)。</p>
+<p><strong>（9） 用TRUNCATE替代DELETE：</strong></p>
+<p>当删除表中的记录时,在通常情况下, 回滚段(rollback segments )
+用来存放可以被恢复的信息.
+如果你没有COMMIT事务,ORACLE会将数据恢复到删除之前的状态(准确地说是恢复到执行删除命令之前的状况)
+而当运用TRUNCATE时,
+回滚段不再存放任何可被恢复的信息.当命令运行后,数据不能被恢复.因此很少的资源被调用,执行时间也会很短.
+(译者按: TRUNCATE只在删除全表适用,TRUNCATE是DDL不是DML) 。</p>
+<p><strong>（10） 尽量多使用COMMIT：</strong></p>
+<p>只要有可能,在程序中尽量多使用COMMIT,
+这样程序的性能得到提高,需求也会因为COMMIT所释放的资源而减少，COMMIT所释放的资源:
+a. 回滚段上用于恢复数据的信息. b. 被程序语句获得的锁 c. redo log buffer
+中的空间 d. ORACLE为管理上述3种资源中的内部花费</p>
+<p><strong>（11） 用Where子句替换HAVING子句：</strong></p>
+<p>避免使用HAVING子句, HAVING
+只会在检索出所有记录之后才对结果集进行过滤. 这个处理需要排序,总计等操作.
+如果能通过WHERE子句限制记录的数目,那就能减少这方面的开销.
+(非oracle中)on、where、having这三个都可以加条件的子句中，on是最先执行，where次之，having最后，因为on是先把不符合条件的记录过滤后才进行统计，它就可以减少中间运算要处理的数据，按理说应该速度是最快的，where也应该比having快点的，因为它过滤数据后才进行sum，在两个表联接时才用on的，所以在一个表的时候，就剩下where跟having比较了。在这单表查询统计的情况下，如果要过滤的条件没有涉及到要计算字段，那它们的结果是一样的，只是where可以使用rushmore技术，而having就不能，在速度上后者要慢如果要涉及到计算的字
+段，就表示在没计算之前，这个字段的值是不确定的，根据上篇写的工作流程，where的作用时间是在计算之前就完成的，而having就是在计算后才起作
+用的，所以在这种情况下，两者的结果会不同。在多表联接查询时，on比where更早起作用。系统首先根据各个表之间的联接条件，把多个表合成一个临时表
+后，再由where进行过滤，然后再计算，计算完后再由having进行过滤。由此可见，要想过滤条件起到正确的作用，首先要明白这个条件应该在什么时候起作用，然后再决定放在那里。</p>
+<p><strong>（12） 减少对表的查询：</strong></p>
+<p>在含有子查询的SQL语句中,要特别注意减少对表的查询.例子： SELECT
+TAB_NAME FROM TABLES WHERE (TAB_NAME,DB_VER) = ( SELECT TAB_NAME,DB_VER
+FROM TAB_COLUMNS WHERE VERSION = 604)</p>
+<p><strong>（13） 通过内部函数提高SQL效率：</strong></p>
+<p>复杂的SQL往往牺牲了执行效率.
+能够掌握上面的运用函数解决问题的方法在实际工作中是非常有意义的。</p>
+<p><strong>（14） 使用表的别名(Alias)：</strong></p>
+<p>当在SQL语句中连接多个表时,
+请使用表的别名并把别名前缀于每个Column上.这样一来,就可以减少解析的时间并减少那些由Column歧义引起的语法错误。</p>
+<p><strong>（15） 用EXISTS替代IN、用NOT EXISTS替代NOT IN：</strong></p>
+<p>在许多基于基础表的查询中,为了满足一个条件,往往需要对另一个表进行联接.在这种情况下,
+使用EXISTS(或NOT EXISTS)通常将提高查询的效率. 在子查询中,NOT
+IN子句将执行一个内部的排序和合并. 无论在哪种情况下,NOT IN都是最低效的
+(因为它对子查询中的表执行了一个全表遍历). 为了避免使用NOT IN
+,我们可以把它改写成外连接(Outer Joins)或NOT EXISTS。 例子：
+（高效）SELECT * FROM EMP (基础表) WHERE EMPNO &gt; 0 AND EXISTS (SELECT
+‘X' FROM DEPT WHERE DEPT.DEPTNO = EMP.DEPTNO AND LOC = ‘MELB')
+(低效)SELECT * FROM EMP (基础表) WHERE EMPNO &gt; 0 AND DEPTNO IN(SELECT
+DEPTNO FROM DEPT WHERE LOC = ‘MELB')</p>
+<p><strong>（16） 识别'低效执行'的SQL语句：</strong></p>
+<p>虽然目前各种关于SQL优化的图形化工具层出不穷,但是写出自己的SQL工具来解决问题始终是一个最好的方法：
+SELECT EXECUTIONS , DISK_READS, BUFFER_GETS,
+ROUND((BUFFER_GETS-DISK_READS)/BUFFER_GETS,2) Hit_radio,
+ROUND(DISK_READS/EXECUTIONS,2) Reads_per_run, SQL_TEXT FROM V$SQLAREA
+WHERE EXECUTIONS&gt;0 AND BUFFER_GETS &gt; 0 AND
+(BUFFER_GETS-DISK_READS)/BUFFER_GETS &lt; 0.8 ORDER BY 4 DESC;</p>
+<p><strong>（17） 用索引提高效率：</strong></p>
+<p>索引是表的一个概念部分,用来提高检索数据的效率，ORACLE使用了一个复杂的自平衡B-tree结构.
+通常,通过索引查询数据比全表扫描要快.
+当ORACLE找出执行查询和Update语句的最佳路径时, ORACLE优化器将使用索引.
+同样在联结多个表时使用索引也可以提高效率.
+另一个使用索引的好处是,它提供了主键(primary
+key)的唯一性验证.。那些LONG或LONG RAW数据类型, 你可以索引几乎所有的列.
+通常, 在大型表中使用索引特别有效. 当然,你也会发现,
+在扫描小表时,使用索引同样能提高效率.
+虽然使用索引能得到查询效率的提高,但是我们也必须注意到它的代价.
+索引需要空间来存储,也需要定期维护, 每当有记录在表中增减或索引列被修改时,
+索引本身也会被修改. 这意味着每条记录的INSERT , DELETE ,
+UPDATE将为此多付出4 , 5 次的磁盘I/O .
+因为索引需要额外的存储空间和处理,那些不必要的索引反而会使查询反应时间变慢.。定期的重构索引是有必要的：
+ALTER INDEX <INDEXNAME> REBUILD <TABLESPACENAME></p>
+<p><strong>（18） 用EXISTS替换DISTINCT：</strong></p>
+<p>当提交一个包含一对多表信息(比如部门表和雇员表)的查询时,避免在SELECT子句中使用DISTINCT.
+一般可以考虑用EXIST替换, EXISTS
+使查询更为迅速,因为RDBMS核心模块将在子查询的条件一旦满足后,立刻返回结果.
+例子： (低效): SELECT DISTINCT DEPT_NO,DEPT_NAME FROM DEPT D , EMP E
+WHERE D.DEPT_NO = E.DEPT_NO (高效): SELECT DEPT_NO,DEPT_NAME FROM DEPT D
+WHERE EXISTS ( SELECT ‘X' FROM EMP E WHERE E.DEPT_NO = D.DEPT_NO);</p>
+<p>（19）
+sql语句用大写的；因为oracle总是先解析sql语句，把小写的字母转换成大写的再执行。</p>
+<p>（20） 在java代码中尽量少用连接符“＋”连接字符串！</p>
+<p>（21） 避免在索引列上使用NOT，通常我们要避免在索引列上使用NOT,
+NOT会产生在和在索引列上使用函数相同的影响.
+当ORACLE”遇到”NOT,他就会停止使用索引转而执行全表扫描。</p>
+<p><strong>（22） 避免在索引列上使用计算</strong>
+WHERE子句中，如果索引列是函数的一部分．优化器将不使用索引而使用全表扫描．举例:
+低效： SELECT … FROM DEPT WHERE SAL * 12 &gt; 25000; 高效: SELECT … FROM
+DEPT WHERE SAL &gt; 25000/12;</p>
+<p><strong>（23） 用&gt;=替代&gt;</strong> 高效: SELECT * FROM EMP WHERE
+DEPTNO &gt;=4 低效: SELECT * FROM EMP WHERE DEPTNO &gt;3 两者的区别在于,
+前者DBMS将直接跳到第一个DEPT等于4的记录而后者将首先定位到DEPTNO=3的记录并且向前扫描到第一个DEPT大于3的记录。</p>
+<p><strong>（24） 用UNION替换OR (适用于索引列)</strong></p>
+<p>通常情况下, 用UNION替换WHERE子句中的OR将会起到较好的效果.
+对索引列使用OR将造成全表扫描. 注意, 以上规则只针对多个索引列有效.
+如果有column没有被索引, 查询效率可能会因为你没有选择OR而降低.
+在下面的例子中, LOC_ID 和REGION上都建有索引. 高效: SELECT LOC_ID ,
+LOC_DESC , REGION FROM LOCATION WHERE LOC_ID = 10 UNION SELECT LOC_ID ,
+LOC_DESC , REGION FROM LOCATION WHERE REGION = “MELBOURNE” 低效: SELECT
+LOC_ID , LOC_DESC , REGION FROM LOCATION WHERE LOC_ID = 10 OR REGION =
+“MELBOURNE” 如果你坚持要用OR,
+那就需要返回记录最少的索引列写在最前面.</p>
+<p><strong>（25） 用IN来替换OR</strong></p>
+<p>这是一条简单易记的规则，但是实际的执行效果还须检验，在ORACLE8i下，两者的执行路径似乎是相同的．
+低效: SELECT…. FROM LOCATION WHERE LOC_ID = 10 OR LOC_ID = 20 OR LOC_ID
+= 30 高效 SELECT… FROM LOCATION WHERE LOC_IN IN (10,20,30);</p>
+<p><strong>（26） 避免在索引列上使用IS NULL和IS NOT NULL</strong></p>
+<p>避免在索引中使用任何可以为空的列，ORACLE将无法使用该索引．对于单列索引，如果列包含空值，索引中将不存在此记录.
+对于复合索引，如果每个列都为空，索引中同样不存在此记录.
+如果至少有一个列不为空，则记录存在于索引中．举例:
+如果唯一性索引建立在表的A列和B列上,
+并且表中存在一条记录的A,B值为(123,null) ,
+ORACLE将不接受下一条具有相同A,B值（123,null）的记录(插入).
+然而如果所有的索引列都为空，ORACLE将认为整个键值为空而空不等于空.
+因此你可以插入1000 条具有相同键值的记录,当然它们都是空!
+因为空值不存在于索引列中,所以WHERE子句中对索引列进行空值比较将使ORACLE停用该索引.
+低效: (索引失效) SELECT … FROM DEPARTMENT WHERE DEPT_CODE IS NOT NULL;
+高效: (索引有效) SELECT … FROM DEPARTMENT WHERE DEPT_CODE &gt;=0;</p>
+<p><strong>（27） 总是使用索引的第一个列：</strong></p>
+<p>如果索引是建立在多个列上, 只有在它的第一个列(leading
+column)被where子句引用时,优化器才会选择使用该索引.
+这也是一条简单而重要的规则，当仅引用索引的第二个列时,优化器使用了全表扫描而忽略了索引。</p>
+<p><strong>（28） 用UNION-ALL 替换UNION ( 如果有可能的话)：</strong></p>
+<p>当SQL
+语句需要UNION两个查询结果集合时,这两个结果集合会以UNION-ALL的方式被合并,
+然后在输出最终结果前进行排序. 如果用UNION ALL替代UNION,
+这样排序就不是必要了. 效率就会因此得到提高. 需要注意的是，UNION ALL
+将重复输出两个结果集合中相同记录. 因此各位还是要从业务需求分析使用UNION
+ALL的可行性. UNION
+将对结果集合排序,这个操作会使用到SORT_AREA_SIZE这块内存.
+对于这块内存的优化也是相当重要的. 下面的SQL可以用来查询排序的消耗量
+低效： SELECT ACCT_NUM, BALANCE_AMT FROM DEBIT_TRANSACTIONS WHERE
+TRAN_DATE = '31-DEC-95' UNION SELECT ACCT_NUM, BALANCE_AMT FROM
+DEBIT_TRANSACTIONS WHERE TRAN_DATE = '31-DEC-95' 高效: SELECT ACCT_NUM,
+BALANCE_AMT FROM DEBIT_TRANSACTIONS WHERE TRAN_DATE = '31-DEC-95' UNION
+ALL SELECT ACCT_NUM, BALANCE_AMT FROM DEBIT_TRANSACTIONS WHERE TRAN_DATE
+= '31-DEC-95'</p>
+<p><strong>（29） 用WHERE替代ORDER BY：</strong></p>
+<p>ORDER BY 子句只在两种严格的条件下使用索引. ORDER
+BY中所有的列必须包含在相同的索引中并保持在索引中的排列顺序. ORDER
+BY中所有的列必须定义为非空. WHERE子句使用的索引和ORDER
+BY子句中所使用的索引不能并列. 例如: 表DEPT包含以下列: DEPT_CODE PK NOT
+NULL DEPT_DESC NOT NULL DEPT_TYPE NULL 低效: (索引不被使用) SELECT
+DEPT_CODE FROM DEPT ORDER BY DEPT_TYPE 高效: (使用索引) SELECT DEPT_CODE
+FROM DEPT WHERE DEPT_TYPE &gt; 0</p>
+<p><strong>（30） 避免改变索引列的类型:</strong></p>
+<p>当比较不同数据类型的数据时, ORACLE自动对列进行简单的类型转换. 假设
+EMPNO是一个数值类型的索引列. SELECT … FROM EMP WHERE EMPNO = ‘123'
+实际上,经过ORACLE类型转换, 语句转化为: SELECT … FROM EMP WHERE EMPNO =
+TO_NUMBER(‘123')
+幸运的是,类型转换没有发生在索引列上,索引的用途没有被改变.
+现在,假设EMP_TYPE是一个字符类型的索引列. SELECT … FROM EMP WHERE
+EMP_TYPE = 123 这个语句被ORACLE转换为: SELECT … FROM EMP WHERE
+TO_NUMBER(EMP_TYPE)=123 因为内部发生的类型转换, 这个索引将不会被用到!
+为了避免ORACLE对你的SQL进行隐式的类型转换, 最好把类型转换用显式表现出来.
+注意当字符和数值比较时, ORACLE会优先转换数值类型到字符类型。</p>
+<p>分析select emp_name form employee where salary &gt; 3000
+在此语句中若salary是Float类型的，则优化器对其进行优化为Convert(float,3000)，因为3000是个整数，我们应在编程时使用3000.0而不要等运行时让DBMS进行转化。同样字符和整型数据的转换。</p>
+<p><strong>（31） 需要当心的WHERE子句:</strong></p>
+<p>某些SELECT 语句中的WHERE子句不使用索引. 这里有一些例子.
+在下面的例子里, (1)‘!=' 将不使用索引. 记住,
+索引只能告诉你什么存在于表中, 而不能告诉你什么不存在于表中. (2) ‘ ¦
+¦'是字符连接函数. 就象其他函数那样, 停用了索引. (3) ‘+'是数学函数.
+就象其他数学函数那样, 停用了索引.
+(4)相同的索引列不能互相比较,这将会启用全表扫描.</p>
+<p>（32） a.
+如果检索数据量超过30%的表中记录数.使用索引将没有显著的效率提高. b.
+在特定情况下, 使用索引也许会比全表扫描慢, 但这是同一个数量级上的区别.
+而通常情况下,使用索引比全表扫描要块几倍乃至几千倍!</p>
+<p><strong>（33） 避免使用耗费资源的操作：</strong></p>
+<p>带有DISTINCT,UNION,MINUS,INTERSECT,ORDER
+BY的SQL语句会启动SQL引擎执行耗费资源的排序(SORT)功能.
+DISTINCT需要一次排序操作, 而其他的至少需要执行两次排序. 通常, 带有UNION,
+MINUS , INTERSECT的SQL语句都可以用其他方式重写.
+如果你的数据库的SORT_AREA_SIZE调配得好, 使用UNION , MINUS,
+INTERSECT也是可以考虑的, 毕竟它们的可读性很强。</p>
+<p><strong>（34） 优化GROUP BY：</strong></p>
+<p>提高GROUP BY 语句的效率, 可以通过将不需要的记录在GROUP BY
+之前过滤掉.下面两个查询返回相同结果但第二个明显就快了许多. 低效: SELECT
+JOB , AVG(SAL) FROM EMP GROUP by JOB HAVING JOB = ‘PRESIDENT' OR JOB =
+‘MANAGER' 高效: SELECT JOB , AVG(SAL) FROM EMP WHERE JOB = ‘PRESIDENT'
+OR JOB = ‘MANAGER' GROUP by JOB</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/database/" rel="tag"># database</a>
+              <a href="/tags/sql/" rel="tag"># sql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/19/gulugulu/" rel="prev" title="java后端，我面了五轮阿里巴巴，然后凉了">
+                  <i class="fa fa-chevron-left"></i> java后端，我面了五轮阿里巴巴，然后凉了
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/19/video_stablization/" rel="next" title="SteadyFlow 2D video stablization">
+                  SteadyFlow 2D video stablization <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nightsnack</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+</body>
+</html>
